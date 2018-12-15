@@ -17,14 +17,14 @@
 
 def buy_an_asset(assetsToBuy, moneyLeft, assetID = 0):
     currAsset = assetsToBuy[assetID]
-    if len(assetsToBuy) == 0:
+    if assetID + 1 == len(assetsToBuy):
         return moneyLeft//currAsset[1]
 
     nextAsset = assetsToBuy[-1]
 
     for currAssCount in range(0, moneyLeft//currAsset[1]):
         currMoneyLeft = moneyLeft - currAsset[1] * currAssCount
-        nextAssCount = buy_an_asset(assetsToBuy, currMoneyLeft)
+        nextAssCount = buy_an_asset(assetsToBuy, currMoneyLeft, assetID + 1)
         print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1])
         print("Buying ", nextAssCount, " of ", nextAsset[0], " at ", nextAsset[1])
         print("Leftover money: ", currMoneyLeft - nextAsset[1] * nextAssCount)
