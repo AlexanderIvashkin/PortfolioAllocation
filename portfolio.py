@@ -18,14 +18,24 @@
 def buy_an_asset(assetsToBuy, moneyLeft):
     currAsset = assetsToBuy[0]
     if len(assetsToBuy) == 1:
-        return int(moneyLeft/currAsset[1])
+        return [int(moneyLeft/currAsset[1])]
 
     leftAssets = assetsToBuy[1:]
     minMoneyLeft = moneyLeft
 
     for currAssCount in range(0, int(moneyLeft/currAsset[1])):
         currMoneyLeft = moneyLeft - currAsset[1] * currAssCount
-        return currAssCount + buy_an_asset(leftAssets, currMoneyLeft)
+        assetsBuying = [currAssCount] + buy_an_asset(leftAssets, currMoneyLeft)
+        if len(assetsBuying) == 0:
+            return []
+        currMoneyLeft = moneyLeft
+        for i in range(len(assetsBuying)):
+            currMoneyLeft = currMoneyLeft - assetsToBuy[i][1] * assetsBuying[i]
+        if currMoneyLeft < minMoneyLeft:
+            return assetsBuying
+        else:
+            return[]
+
 
         print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1], " for ", currAsset[1] * currAssCount)
         print("Buying ", nextAssCount, " of ", nextAsset[0], " at ", nextAsset[1], " for ", nextAsset[1] * nextAssCount)
@@ -36,4 +46,4 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             print("Found minMoneyLeft!")
 
 
-buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10)
+print(buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10))
