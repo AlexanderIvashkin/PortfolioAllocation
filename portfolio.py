@@ -22,19 +22,29 @@ def buy_an_asset(assetsToBuy, moneyLeft, minMoneyLeft = -1):
 
     leftAssets = assetsToBuy[1:]
     currMinMoneyLeft = minMoneyLeft if minMoneyLeft >= 0 else moneyLeft
+    #print("currMinMoneyLeft: ", currMinMoneyLeft)
 
     for currAssCount in range(0, int(moneyLeft/currAsset[1])):
         currMoneyLeft = moneyLeft - currAsset[1] * currAssCount
         assetsBuying = [currAssCount] + buy_an_asset(leftAssets, currMoneyLeft, currMinMoneyLeft)
+        #print(assetsBuying)
         if assetsBuying == []:
             return []
         currMoneyLeft = moneyLeft
         for i in range(len(assetsBuying)):
             currMoneyLeft = currMoneyLeft - assetsToBuy[i][1] * assetsBuying[i]
+        print("Inside for. currMoneyLeft:", currMoneyLeft)
         if currMoneyLeft < currMinMoneyLeft:
-            return assetsBuying
-        else:
-            return[]
+            print("Found local min:", currMoneyLeft)
+            print(assetsBuying)
+            currMinMoneyLeft = currMoneyLeft
+
+
+    if currMinMoneyLeft < minMoneyLeft:
+        print(assetsBuying)
+        return assetsBuying
+    else:
+        return[]
 
 
 # print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1], " for ", currAsset[1] * currAssCount)
