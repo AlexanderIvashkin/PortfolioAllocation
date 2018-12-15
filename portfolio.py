@@ -15,35 +15,31 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def buy_an_asset(assetsToBuy, moneyLeft):
+def buy_an_asset(assetsToBuy, moneyLeft, minMoneyLeft = -1):
     currAsset = assetsToBuy[0]
     if len(assetsToBuy) == 1:
         return [int(moneyLeft/currAsset[1])]
 
     leftAssets = assetsToBuy[1:]
-    minMoneyLeft = moneyLeft
+    currMinMoneyLeft = minMoneyLeft if minMoneyLeft >= 0 else moneyLeft
 
     for currAssCount in range(0, int(moneyLeft/currAsset[1])):
         currMoneyLeft = moneyLeft - currAsset[1] * currAssCount
-        assetsBuying = [currAssCount] + buy_an_asset(leftAssets, currMoneyLeft)
-        if len(assetsBuying) == 0:
+        assetsBuying = [currAssCount] + buy_an_asset(leftAssets, currMoneyLeft, currMinMoneyLeft)
+        if assetsBuying == []:
             return []
         currMoneyLeft = moneyLeft
         for i in range(len(assetsBuying)):
             currMoneyLeft = currMoneyLeft - assetsToBuy[i][1] * assetsBuying[i]
-        if currMoneyLeft < minMoneyLeft:
+        if currMoneyLeft < currMinMoneyLeft:
             return assetsBuying
         else:
             return[]
 
 
-        print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1], " for ", currAsset[1] * currAssCount)
-        print("Buying ", nextAssCount, " of ", nextAsset[0], " at ", nextAsset[1], " for ", nextAsset[1] * nextAssCount)
-        print("Leftover money: ", currMoneyLeft)
-        
-        if currMoneyLeft < minMoneyLeft:
-            minMoneyLeft = currMoneyLeft
-            print("Found minMoneyLeft!")
+# print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1], " for ", currAsset[1] * currAssCount)
+# print("Buying ", nextAssCount, " of ", nextAsset[0], " at ", nextAsset[1], " for ", nextAsset[1] * nextAssCount)
+# print("Leftover money: ", currMoneyLeft)
 
 
 print(buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10))
