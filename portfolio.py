@@ -18,16 +18,23 @@
 def buy_an_asset(assetsToBuy, moneyLeft, assetID = 0):
     currAsset = assetsToBuy[assetID]
     if assetID + 1 == len(assetsToBuy):
-        return moneyLeft//currAsset[1]
+        return int(moneyLeft/currAsset[1])
 
     nextAsset = assetsToBuy[-1]
+    minMoneyLeft = moneyLeft
 
-    for currAssCount in range(0, moneyLeft//currAsset[1]):
+    for currAssCount in range(0, int(moneyLeft/currAsset[1])):
         currMoneyLeft = moneyLeft - currAsset[1] * currAssCount
         nextAssCount = buy_an_asset(assetsToBuy, currMoneyLeft, assetID + 1)
+        currMoneyLeft = currMoneyLeft - nextAsset[1] * nextAssCount
+
         print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1], " for ", currAsset[1] * currAssCount)
         print("Buying ", nextAssCount, " of ", nextAsset[0], " at ", nextAsset[1], " for ", nextAsset[1] * nextAssCount)
-        print("Leftover money: ", currMoneyLeft - nextAsset[1] * nextAssCount)
+        print("Leftover money: ", currMoneyLeft)
+        
+        if currMoneyLeft < minMoneyLeft:
+            minMoneyLeft = currMoneyLeft
+            print("Found minMoneyLeft!")
 
 
-buy_an_asset([("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10)
+buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10)
