@@ -15,18 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def buy_an_asset(assetsToBuy, moneyLeft, assetID = 0):
-    currAsset = assetsToBuy[assetID]
-    if assetID + 1 == len(assetsToBuy):
+def buy_an_asset(assetsToBuy, moneyLeft):
+    currAsset = assetsToBuy[0]
+    if len(assetsToBuy) == 1:
         return int(moneyLeft/currAsset[1])
 
-    nextAsset = assetsToBuy[-1]
+    leftAssets = assetsToBuy[1:]
     minMoneyLeft = moneyLeft
 
     for currAssCount in range(0, int(moneyLeft/currAsset[1])):
         currMoneyLeft = moneyLeft - currAsset[1] * currAssCount
-        nextAssCount = buy_an_asset(assetsToBuy, currMoneyLeft, assetID + 1)
-        currMoneyLeft = currMoneyLeft - nextAsset[1] * nextAssCount
+        return currAssCount + buy_an_asset(leftAssets, currMoneyLeft)
 
         print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1], " for ", currAsset[1] * currAssCount)
         print("Buying ", nextAssCount, " of ", nextAsset[0], " at ", nextAsset[1], " for ", nextAsset[1] * nextAssCount)
