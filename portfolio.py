@@ -15,26 +15,41 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def buy_an_asset(assetsToBuy, moneyLeft, assetID = 0):
-    currAsset = assetsToBuy[assetID]
-    if assetID + 1 == len(assetsToBuy):
-        return int(moneyLeft/currAsset[1])
+def buy_an_asset(assetsToBuy, moneyLeft, minMoneyLeft = -1):
+    currAsset = assetsToBuy[0]
+    if len(assetsToBuy) == 1:
+        return [int(moneyLeft/currAsset[1])]
 
-    nextAsset = assetsToBuy[-1]
-    minMoneyLeft = moneyLeft
+    leftAssets = assetsToBuy[1:]
+    currMinMoneyLeft = minMoneyLeft if minMoneyLeft >= 0 else moneyLeft
+    #print("currMinMoneyLeft: ", currMinMoneyLeft)
 
     for currAssCount in range(0, int(moneyLeft/currAsset[1])):
         currMoneyLeft = moneyLeft - currAsset[1] * currAssCount
-        nextAssCount = buy_an_asset(assetsToBuy, currMoneyLeft, assetID + 1)
-        currMoneyLeft = currMoneyLeft - nextAsset[1] * nextAssCount
+        assetsBuying = [currAssCount] + buy_an_asset(leftAssets, currMoneyLeft, currMinMoneyLeft)
+        #print(assetsBuying)
+        if assetsBuying == []:
+            return []
+        currMoneyLeft = moneyLeft
+        for i in range(len(assetsBuying)):
+            currMoneyLeft = currMoneyLeft - assetsToBuy[i][1] * assetsBuying[i]
+        print("Inside for. currMoneyLeft:", currMoneyLeft)
+        if currMoneyLeft < currMinMoneyLeft:
+            print("Found local min:", currMoneyLeft)
+            print(assetsBuying)
+            currMinMoneyLeft = currMoneyLeft
 
-        print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1], " for ", currAsset[1] * currAssCount)
-        print("Buying ", nextAssCount, " of ", nextAsset[0], " at ", nextAsset[1], " for ", nextAsset[1] * nextAssCount)
-        print("Leftover money: ", currMoneyLeft)
-        
-        if currMoneyLeft < minMoneyLeft:
-            minMoneyLeft = currMoneyLeft
-            print("Found minMoneyLeft!")
+
+    if currMinMoneyLeft < minMoneyLeft:
+        print(assetsBuying)
+        return assetsBuying
+    else:
+        return[]
 
 
-buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10)
+# print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1], " for ", currAsset[1] * currAssCount)
+# print("Buying ", nextAssCount, " of ", nextAsset[0], " at ", nextAsset[1], " for ", nextAsset[1] * nextAssCount)
+# print("Leftover money: ", currMoneyLeft)
+
+
+print(buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10))
