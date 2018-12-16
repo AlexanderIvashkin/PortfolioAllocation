@@ -15,62 +15,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+global minAssetsBuying
+minAssetsBuying = []
+
 def buy_an_asset(assetsToBuy, moneyLeft, minMoneyLeft = -1):
-    currAsset = assetsToBuy[0]
-    if len(assetsToBuy) == 1:
-        return [int(moneyLeft/currAsset[1])]
-
-    leftAssets = assetsToBuy[1:]
-    currMinMoneyLeft = minMoneyLeft if minMoneyLeft >= 0 else moneyLeft
-    #print("currMinMoneyLeft: ", currMinMoneyLeft)
-
-    # local scoping WTF?!
-    #currMinAssetsBuying = []
-    for currAssCount in range(0, int(moneyLeft/currAsset[1])):
-        currMoneyLeft = moneyLeft - currAsset[1] * currAssCount
-        assetsBuying = [currAssCount] + buy_an_asset(leftAssets, currMoneyLeft, currMinMoneyLeft)
-        #print(assetsBuying)
-        if assetsBuying != []:
-            currMoneyLeft = moneyLeft
-            for i in range(len(assetsBuying)):
-                currMoneyLeft = currMoneyLeft - assetsToBuy[i][1] * assetsBuying[i]
-            #print("Inside for. currMoneyLeft:", currMoneyLeft)
-            if currMoneyLeft < currMinMoneyLeft:
-                print("Found local min:", currMoneyLeft)
-                print(assetsBuying)
-                currMinMoneyLeft = currMoneyLeft
-                # THIS IS THE PROBLEM (LOCAL SCOPING WTF?!)
-                currMinAssetsBuying = assetsBuying
-                print("currMinAssetsBuying: ", currMinAssetsBuying)
+    global minAssetsBuying
+    minAssetsBuying += assetsToBuy[0]
+    print("Inside fun: ", minAssetsBuying)
+    return minAssetsBuying
 
 
-    # can't do this. Need a global var.
-    # Calculate and compare our local minimum with the global minimum
-    if minAssetsBuying != []:
-        currMoneyLeft = moneyLeft
-        for i in range(len(minAssetsBuying)):
-            currMoneyLeft = currMoneyLeft - assetsToBuy[i][1] * minAssetsBuying[i]
-        if currMoneyLeft < minMoneyLeft:
-            return currMinAssetsBuying
-        else:
-            return minAssetsBuying
-    else:
-        return currMinAssetsBuying
-
-
-    print("Before exiting sub: currMinMoneyLeft: ", currMinMoneyLeft)
-    print("Before exiting sub: minMoneyLeft: ", minMoneyLeft)
-    if currMinMoneyLeft <= minMoneyLeft:
-        print("Exiting sub, min: ",currMinAssetsBuying)
-        return currMinAssetsBuying
-    else:
-        print("Not the min. Assets: ", assetsBuying)
-        return []
-
-
-# print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1], " for ", currAsset[1] * currAssCount)
-# print("Buying ", nextAssCount, " of ", nextAsset[0], " at ", nextAsset[1], " for ", nextAsset[1] * nextAssCount)
-# print("Leftover money: ", currMoneyLeft)
-
-
+print("Before calling: ", minAssetsBuying)
 print(buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10))
+print("After fun: ", minAssetsBuying)
