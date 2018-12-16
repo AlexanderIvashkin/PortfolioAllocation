@@ -21,17 +21,11 @@ def calc_total_cost(assetsToBuy, assetsBuying):
         tot_sum += ass[1] * cnt
     return tot_sum
 
-#minMoneyLeft = -1
-
 def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []
     minMoneyLeft = moneyLeft
-    #global minMoneyLeft
 
     print("fun called with: ", assetsToBuy, moneyLeft)
-
-    #if minMoneyLeft < 0: minMoneyLeft = moneyLeft
-    #print("Starting fun; minMoneyLeft: ", minMoneyLeft)
 
     currAsset = assetsToBuy[0]
     if len(assetsToBuy) == 1:
@@ -59,7 +53,13 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
 
 #print("Before calling: ", minAssetsBuying)
-print("Min assets: ", buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10))
+ass = [("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)]
+cash = 10
+buying = buy_an_asset(ass, cash)
+print("Will buy: ")
+for a, c in zip(ass, buying):
+    print("   ", c, " of ", a[0])
+print("Total cost: ", calc_total_cost(ass, buying))
 #print("After fun: ", minAssetsBuying)
 #print("Total sum: ", calc_total_cost([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], [10, 0, 0]))
 
