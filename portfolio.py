@@ -49,7 +49,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
         print("   currMoneyLeft: ", currMoneyLeft)
         print("   minMoneyLeft: ", minMoneyLeft)
 
-        if currMoneyLeft < minMoneyLeft:
+        if currMoneyLeft <= minMoneyLeft:
             minMoneyLeft = currMoneyLeft
             minAssetsBuying = [currAssetCount] + currAssetsBuying
             isLocalMin = True
