@@ -24,27 +24,34 @@ def buy_an_asset(assetsToBuy, moneyLeft, minMoneyLeft = -1):
     currMinMoneyLeft = minMoneyLeft if minMoneyLeft >= 0 else moneyLeft
     #print("currMinMoneyLeft: ", currMinMoneyLeft)
 
+    # local scoping WTF?!
+    #currMinAssetsBuying = []
     for currAssCount in range(0, int(moneyLeft/currAsset[1])):
         currMoneyLeft = moneyLeft - currAsset[1] * currAssCount
         assetsBuying = [currAssCount] + buy_an_asset(leftAssets, currMoneyLeft, currMinMoneyLeft)
         #print(assetsBuying)
-        if assetsBuying == []:
-            return []
-        currMoneyLeft = moneyLeft
-        for i in range(len(assetsBuying)):
-            currMoneyLeft = currMoneyLeft - assetsToBuy[i][1] * assetsBuying[i]
-        print("Inside for. currMoneyLeft:", currMoneyLeft)
-        if currMoneyLeft < currMinMoneyLeft:
-            print("Found local min:", currMoneyLeft)
-            print(assetsBuying)
-            currMinMoneyLeft = currMoneyLeft
+        if assetsBuying != []:
+            currMoneyLeft = moneyLeft
+            for i in range(len(assetsBuying)):
+                currMoneyLeft = currMoneyLeft - assetsToBuy[i][1] * assetsBuying[i]
+            #print("Inside for. currMoneyLeft:", currMoneyLeft)
+            if currMoneyLeft < currMinMoneyLeft:
+                print("Found local min:", currMoneyLeft)
+                print(assetsBuying)
+                currMinMoneyLeft = currMoneyLeft
+                # THIS IS THE PROBLEM (LOCAL SCOPING WTF?!)
+                currMinAssetsBuying = assetsBuying
+                print("currMinAssetsBuying: ", currMinAssetsBuying)
 
 
-    if currMinMoneyLeft < minMoneyLeft:
-        print(assetsBuying)
-        return assetsBuying
+    print("Before exiting sub: currMinMoneyLeft: ", currMinMoneyLeft)
+    print("Before exiting sub: minMoneyLeft: ", minMoneyLeft)
+    if currMinMoneyLeft <= minMoneyLeft:
+        print("Exiting sub, min: ",currMinAssetsBuying)
+        return currMinAssetsBuying
     else:
-        return[]
+        print("Not the min. Assets: ", assetsBuying)
+        return []
 
 
 # print("Buying ", currAssCount, " of ", currAsset[0], " at ", currAsset[1], " for ", currAsset[1] * currAssCount)
