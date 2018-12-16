@@ -25,7 +25,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []
     minMoneyLeft = moneyLeft
 
-    print("fun called with: ", assetsToBuy, moneyLeft)
+    # print("fun called with: ", assetsToBuy, moneyLeft)
 
     currAsset = assetsToBuy[0]
     if len(assetsToBuy) == 1:
@@ -36,31 +36,25 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - currAssetCount * currAsset[1]
         currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
-        print("   after recursion: currAssetsBuying:", currAssetsBuying)
+        # print("   after recursion: currAssetsBuying:", currAssetsBuying)
         currMoneyLeft -= calc_total_cost(leftAssetsToBuy, currAssetsBuying)
-        print("   currMoneyLeft: ", currMoneyLeft)
-        print("   minMoneyLeft: ", minMoneyLeft)
+        # print("   currMoneyLeft: ", currMoneyLeft)
+        # print("   minMoneyLeft: ", minMoneyLeft)
 
         if currMoneyLeft < minMoneyLeft:
             minMoneyLeft = currMoneyLeft
             minAssetsBuying = [currAssetCount] + currAssetsBuying
-            print("        Found local min: minMoneyLeft: ", minMoneyLeft)
-            print("        minAssetsBuying: ", minAssetsBuying)
+            # print("        Found local min: minMoneyLeft: ", minMoneyLeft)
+            # print("        minAssetsBuying: ", minAssetsBuying)
 
-    print("Exiting fun. Will return minAssetsBuying: ", minAssetsBuying)
+    # print("Exiting fun. Will return minAssetsBuying: ", minAssetsBuying)
     return minAssetsBuying
 
 
-
-#print("Before calling: ", minAssetsBuying)
 ass = [("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)]
 cash = 10
 buying = buy_an_asset(ass, cash)
 print("Will buy: ")
 for a, c in zip(ass, buying):
-    print("   ", c, " of ", a[0])
+    print("   ", c, " of ", a[0], "@", a[1])
 print("Total cost: ", calc_total_cost(ass, buying))
-#print("After fun: ", minAssetsBuying)
-#print("Total sum: ", calc_total_cost([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], [10, 0, 0]))
-
-#print(buy_an_asset([("S&P", 3, 0.01)], 3.5))
