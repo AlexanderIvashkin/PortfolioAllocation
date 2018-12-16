@@ -41,7 +41,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
     isLocalMin = False
 
-    for currAssetCount in range(0, int(moneyLeft / currAsset[1])):
+    for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - currAssetCount * currAsset[1]
         currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
         print("   after recursion: currAssetsBuying:", currAssetsBuying)
