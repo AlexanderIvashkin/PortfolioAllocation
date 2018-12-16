@@ -44,6 +44,20 @@ def buy_an_asset(assetsToBuy, moneyLeft, minMoneyLeft = -1):
                 print("currMinAssetsBuying: ", currMinAssetsBuying)
 
 
+    # can't do this. Need a global var.
+    # Calculate and compare our local minimum with the global minimum
+    if minAssetsBuying != []:
+        currMoneyLeft = moneyLeft
+        for i in range(len(minAssetsBuying)):
+            currMoneyLeft = currMoneyLeft - assetsToBuy[i][1] * minAssetsBuying[i]
+        if currMoneyLeft < minMoneyLeft:
+            return currMinAssetsBuying
+        else:
+            return minAssetsBuying
+    else:
+        return currMinAssetsBuying
+
+
     print("Before exiting sub: currMinMoneyLeft: ", currMinMoneyLeft)
     print("Before exiting sub: minMoneyLeft: ", minMoneyLeft)
     if currMinMoneyLeft <= minMoneyLeft:
