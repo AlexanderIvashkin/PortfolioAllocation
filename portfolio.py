@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-global minAssetsBuying
 minAssetsBuying = []
 
 def buy_an_asset(assetsToBuy, moneyLeft, minMoneyLeft = -1):
