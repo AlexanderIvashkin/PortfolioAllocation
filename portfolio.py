@@ -22,24 +22,29 @@ def calc_total_cost(assetsToBuy, assetsBuying):
     return tot_sum
 
 minAssetsBuying = []
-minMoneyLeft = -1
+globMinMoneyLeft = -1
 
 def buy_an_asset(assetsToBuy, moneyLeft):
     global minAssetsBuying
-    global minMoneyLeft
+    global globMinMoneyLeft
 
     print("fun called with: ", assetsToBuy, moneyLeft)
 
-    if minMoneyLeft < 0: minMoneyLeft = moneyLeft
-    #print("Starting fun; minMoneyLeft: ", minMoneyLeft)
+    minMoneyLeft = moneyLeft
+    if globMinMoneyLeft < 0:
+        globMinMoneyLeft = minMoneyLeft
+
+    print("Starting fun; minMoneyLeft: ", minMoneyLeft)
+    print("              globMinMoneyLeft: ", globMinMoneyLeft)
 
     currAsset = assetsToBuy[0]
     if len(assetsToBuy) == 1:
         return [int(moneyLeft / currAsset[1])]
     leftAssetsToBuy = assetsToBuy[1:]
-    #print("leftAssetsToBuy: ", leftAssetsToBuy)
+    print("leftAssetsToBuy: ", leftAssetsToBuy)
 
     isLocalMin = False
+    isGlobalMin = False
 
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - currAssetCount * currAsset[1]
@@ -49,21 +54,24 @@ def buy_an_asset(assetsToBuy, moneyLeft):
         print("   currMoneyLeft: ", currMoneyLeft)
         print("   minMoneyLeft: ", minMoneyLeft)
 
-        if currMoneyLeft <= minMoneyLeft:
+        if currMoneyLeft < minMoneyLeft:
             minMoneyLeft = currMoneyLeft
-            minAssetsBuying = [currAssetCount] + currAssetsBuying
             isLocalMin = True
             print("Found local min: minMoneyLeft: ", minMoneyLeft)
-            print("minAssetsBuying: ", minAssetsBuying)
+            if minMoneyLeft < globMinMoneyLeft:
+                minAssetsBuying = [currAssetCount] + currAssetsBuying
+                globMinMoneyLeft = minMoneyLeft
+                isGlobalMin = True
+                print("Found global min: globMinMoneyLeft: ", globMinMoneyLeft)
+                print("minAssetsBuying: ", minAssetsBuying)
 
-    print("Exiting fun. Will return minAssetsBuying: ", minAssetsBuying if isLocalMin else [])
-    return minAssetsBuying if isLocalMin else []
+    print("Exiting fun. Will return minAssetsBuying: ", minAssetsBuying if isGlobalMin else [])
+    return minAssetsBuying if isGlobalMin else []
 
 
 
 #print("Before calling: ", minAssetsBuying)
-buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10)
-print("Min assets: ", minAssetsBuying)
+print("Min assets: ", buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10))
 #print("After fun: ", minAssetsBuying)
 #print("Total sum: ", calc_total_cost([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], [10, 0, 0]))
 
