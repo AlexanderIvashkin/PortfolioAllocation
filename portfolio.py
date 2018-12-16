@@ -39,24 +39,32 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     leftAssetsToBuy = assetsToBuy[1:]
     #print("leftAssetsToBuy: ", leftAssetsToBuy)
 
+    isLocalMin = False
+
     for currAssetCount in range(0, int(moneyLeft / currAsset[1])):
         currMoneyLeft = moneyLeft - currAssetCount * currAsset[1]
         currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
+        print("   after recursion: currAssetsBuying:", currAssetsBuying)
         currMoneyLeft -= calc_total_cost(leftAssetsToBuy, currAssetsBuying)
+        print("   currMoneyLeft: ", currMoneyLeft)
+        print("   minMoneyLeft: ", minMoneyLeft)
 
         if currMoneyLeft < minMoneyLeft:
             minMoneyLeft = currMoneyLeft
             minAssetsBuying = [currAssetCount] + currAssetsBuying
+            isLocalMin = True
             print("Found local min: minMoneyLeft: ", minMoneyLeft)
             print("minAssetsBuying: ", minAssetsBuying)
 
-    return minAssetsBuying
+    print("Exiting fun. Will return minAssetsBuying: ", minAssetsBuying if isLocalMin else [])
+    return minAssetsBuying if isLocalMin else []
 
 
 
 #print("Before calling: ", minAssetsBuying)
-#print(buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10))
+buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10)
+print("Min assets: ", minAssetsBuying)
 #print("After fun: ", minAssetsBuying)
 #print("Total sum: ", calc_total_cost([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], [10, 0, 0]))
 
-print(buy_an_asset([("S&P", 3, 0.01)], 10))
+#print(buy_an_asset([("S&P", 3, 0.01)], 3.5))
