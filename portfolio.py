@@ -15,15 +15,48 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-minAssetsBuying = []
+def calc_total_cost(assetsToBuy, assetsBuying):
+    tot_sum = 0
+    for ass, cnt in zip(assetsToBuy, assetsBuying):
+        tot_sum += ass[1] * cnt
+    return tot_sum
 
-def buy_an_asset(assetsToBuy, moneyLeft, minMoneyLeft = -1):
+minAssetsBuying = []
+minMoneyLeft = -1
+
+def buy_an_asset(assetsToBuy, moneyLeft):
     global minAssetsBuying
-    minAssetsBuying += assetsToBuy[0]
-    print("Inside fun: ", minAssetsBuying)
+    global minMoneyLeft
+
+    print("fun called with: ", assetsToBuy, moneyLeft)
+
+    if minMoneyLeft < 0: minMoneyLeft = moneyLeft
+    #print("Starting fun; minMoneyLeft: ", minMoneyLeft)
+
+    currAsset = assetsToBuy[0]
+    if len(assetsToBuy) == 1:
+        return [int(moneyLeft / currAsset[1])]
+    leftAssetsToBuy = assetsToBuy[1:]
+    #print("leftAssetsToBuy: ", leftAssetsToBuy)
+
+    for currAssetCount in range(0, int(moneyLeft / currAsset[1])):
+        currMoneyLeft = moneyLeft - currAssetCount * currAsset[1]
+        currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
+        currMoneyLeft -= calc_total_cost(leftAssetsToBuy, currAssetsBuying)
+
+        if currMoneyLeft < minMoneyLeft:
+            minMoneyLeft = currMoneyLeft
+            minAssetsBuying = [currAssetCount] + currAssetsBuying
+            print("Found local min: minMoneyLeft: ", minMoneyLeft)
+            print("minAssetsBuying: ", minAssetsBuying)
+
     return minAssetsBuying
 
 
-print("Before calling: ", minAssetsBuying)
-print(buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10))
-print("After fun: ", minAssetsBuying)
+
+#print("Before calling: ", minAssetsBuying)
+#print(buy_an_asset([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], 10))
+#print("After fun: ", minAssetsBuying)
+#print("Total sum: ", calc_total_cost([("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)], [10, 0, 0]))
+
+print(buy_an_asset([("S&P", 3, 0.01)], 10))
