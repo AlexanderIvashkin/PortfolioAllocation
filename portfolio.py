@@ -51,10 +51,12 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     return minAssetsBuying
 
 
-ass = [("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01)]
-cash = 10
+ass = [("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01), ("C", 4, 0.01), ("AAPL", 4, 0.01)]
+cash = 100
 buying = buy_an_asset(ass, cash)
+cashUsed = calc_total_cost(ass, buying)
 print("Will buy: ")
 for a, c in zip(ass, buying):
     print("   ", c, " of ", a[0], "@", a[1])
-print("Total cost: ", calc_total_cost(ass, buying))
+print("Total cost: ", cashUsed)
+print("Money left: ", cash - cashUsed)
