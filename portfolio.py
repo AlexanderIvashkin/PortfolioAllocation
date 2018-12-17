@@ -15,11 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def calc_total_cost(assetsToBuy, assetsBuying):
+def calc_sum_bought(assetsToBuy, assetsBuying):
     tot_sum = 0
     for ass, cnt in zip(assetsToBuy, assetsBuying):
         tot_sum += ass[1] * cnt
     return tot_sum
+
+def calc_sum_fees(assetsToBuy, assetsBuying):
+    fees = 0
+    for ass, cnt in zip(assetsToBuy, assetsBuying):
+        fees += ass[1] * cnt * ass[2]
+    return fees
 
 iterations = 0
 isDebug = False
@@ -43,7 +49,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
         currMoneyLeft = moneyLeft - currAssetCount * currAsset[1]
         currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
         if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
-        currMoneyLeft -= calc_total_cost(leftAssetsToBuy, currAssetsBuying)
+        currMoneyLeft -= calc_sum_bought(leftAssetsToBuy, currAssetsBuying)
         if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
         if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
 
@@ -59,14 +65,15 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
 
 if __name__ == '__main__':
-    ass = [("LQD", 2.5, 0.02), ("SCHA", 2.01, 0.02), ("S&P", 0.91, 0.01), ("C", 9.9, 0.01), ("AAPL", 9.1, 0.01)]
+    ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 9.1, 0.01, 1)]
     print(ass)
     cash = 100
     buying = buy_an_asset(ass, cash)
-    cashUsed = calc_total_cost(ass, buying)
+    cashUsed = calc_sum_bought(ass, buying)
     print("Will buy: ")
     for a, c in zip(ass, buying):
         print("   ", c, " of ", a[0], "@", a[1])
     print("Total cost: ", cashUsed)
     print("Money left: ", cash - cashUsed)
+    print("Total fees: ", calc_sum_fees(ass, buying))
     print("Calculated in ", iterations, " iterations")
