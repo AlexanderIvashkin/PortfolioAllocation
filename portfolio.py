@@ -22,6 +22,7 @@ def calc_total_cost(assetsToBuy, assetsBuying):
     return tot_sum
 
 iterations = 0
+isDebug = True
 
 def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []
@@ -29,34 +30,36 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     global iterations
     iterations += 1
 
-    # print("fun called with: ", assetsToBuy, moneyLeft)
+    global isDebug
+    if isDebug: print("fun called with: ", assetsToBuy, moneyLeft)
 
     currAsset = assetsToBuy[0]
     if len(assetsToBuy) == 1:
         return [int(moneyLeft / currAsset[1])]
     leftAssetsToBuy = assetsToBuy[1:]
-    #print("leftAssetsToBuy: ", leftAssetsToBuy)
+    if isDebug: print("leftAssetsToBuy: ", leftAssetsToBuy)
 
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - currAssetCount * currAsset[1]
         currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
-        # print("   after recursion: currAssetsBuying:", currAssetsBuying)
+        if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
         currMoneyLeft -= calc_total_cost(leftAssetsToBuy, currAssetsBuying)
-        # print("   currMoneyLeft: ", currMoneyLeft)
-        # print("   minMoneyLeft: ", minMoneyLeft)
+        if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
+        if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
 
         if currMoneyLeft < minMoneyLeft:
             minMoneyLeft = currMoneyLeft
             minAssetsBuying = [currAssetCount] + currAssetsBuying
-            # print("        Found local min: minMoneyLeft: ", minMoneyLeft)
-            # print("        minAssetsBuying: ", minAssetsBuying)
+            if isDebug: print("        Found local min: minMoneyLeft: ", minMoneyLeft)
+            if isDebug: print("        minAssetsBuying: ", minAssetsBuying)
 
-    # print("Exiting fun. Will return minAssetsBuying: ", minAssetsBuying)
-    return minAssetsBuying
+    returnValue = minAssetsBuying if minAssetsBuying != [] else [currAssetCount] + currAssetsBuying
+    if isDebug: print("Exiting fun. Will return minAssetsBuying: ", returnValue)
+    return returnValue
 
 
-ass = [("LQD", 2.6, 0.02), ("SCHA", 2.15, 0.02), ("S&P", 2.77, 0.01), ("C", 3.95, 0.01), ("AAPL", 1.73, 0.01)]
-cash = 120
+ass = [("LQD", 2.5, 0.02), ("SCHA", 2.15, 0.02), ("S&P", 2.77, 0.01), ("C", 3.95, 0.01), ("AAPL", 1.73, 0.01)]
+cash = 10
 buying = buy_an_asset(ass, cash)
 cashUsed = calc_total_cost(ass, buying)
 print("Will buy: ")
