@@ -58,13 +58,14 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     return returnValue
 
 
-ass = [("LQD", 2.5, 0.02), ("SCHA", 2.01, 0.02), ("S&P", 0.91, 0.01), ("C", 9.9, 0.01), ("AAPL", 9.1, 0.01)]
-cash = 100
-buying = buy_an_asset(ass, cash)
-cashUsed = calc_total_cost(ass, buying)
-print("Will buy: ")
-for a, c in zip(ass, buying):
-    print("   ", c, " of ", a[0], "@", a[1])
-print("Total cost: ", cashUsed)
-print("Money left: ", cash - cashUsed)
-print("Calculated in ", iterations, " iterations")
+if __name__ == '__main__':
+    ass = [("LQD", 2.5, 0.02), ("SCHA", 2.01, 0.02), ("S&P", 0.91, 0.01), ("C", 9.9, 0.01), ("AAPL", 9.1, 0.01)]
+    cash = 100
+    buying = buy_an_asset(ass, cash)
+    cashUsed = calc_total_cost(ass, buying)
+    print("Will buy: ")
+    for a, c in zip(ass, buying):
+        print("   ", c, " of ", a[0], "@", a[1])
+    print("Total cost: ", cashUsed)
+    print("Money left: ", cash - cashUsed)
+    print("Calculated in ", iterations, " iterations")
