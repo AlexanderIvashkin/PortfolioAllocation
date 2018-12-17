@@ -21,9 +21,13 @@ def calc_total_cost(assetsToBuy, assetsBuying):
         tot_sum += ass[1] * cnt
     return tot_sum
 
+iterations = 0
+
 def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []
     minMoneyLeft = moneyLeft
+    global iterations
+    iterations += 1
 
     # print("fun called with: ", assetsToBuy, moneyLeft)
 
@@ -51,8 +55,8 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     return minAssetsBuying
 
 
-ass = [("LQD", 2.5, 0.02), ("SCHA", 2, 0.02), ("S&P", 3, 0.01), ("C", 4, 0.01), ("AAPL", 4, 0.01)]
-cash = 100
+ass = [("LQD", 2.6, 0.02), ("SCHA", 2.15, 0.02), ("S&P", 2.77, 0.01), ("C", 3.95, 0.01), ("AAPL", 1.73, 0.01)]
+cash = 120
 buying = buy_an_asset(ass, cash)
 cashUsed = calc_total_cost(ass, buying)
 print("Will buy: ")
@@ -60,3 +64,4 @@ for a, c in zip(ass, buying):
     print("   ", c, " of ", a[0], "@", a[1])
 print("Total cost: ", cashUsed)
 print("Money left: ", cash - cashUsed)
+print("Calculated in ", iterations, " iterations")
