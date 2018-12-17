@@ -21,11 +21,13 @@ def calc_sum_bought(assetsToBuy, assetsBuying):
         tot_sum += ass[1] * cnt
     return tot_sum
 
+def calc_fee(asset, cnt):
+    return max(asset[2] * cnt * asset[1], asset[3])
+
 def calc_sum_fees(assetsToBuy, assetsBuying):
     fees = 0
     for ass, cnt in zip(assetsToBuy, assetsBuying):
-        cost = ass[1] * cnt 
-        fees += max(cost * ass[2], ass[3])
+        fees += calc_fee(ass, cnt)
     return fees
 
 iterations = 0
@@ -34,6 +36,7 @@ isDebug = False
 def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []
     minMoneyLeft = moneyLeft
+    minFees = moneyLeft
     global iterations
     iterations += 1
 
