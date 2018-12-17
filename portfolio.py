@@ -24,7 +24,8 @@ def calc_sum_bought(assetsToBuy, assetsBuying):
 def calc_sum_fees(assetsToBuy, assetsBuying):
     fees = 0
     for ass, cnt in zip(assetsToBuy, assetsBuying):
-        fees += ass[1] * cnt * ass[2]
+        cost = ass[1] * cnt 
+        fees += max(cost * ass[2], ass[3])
     return fees
 
 iterations = 0
@@ -65,7 +66,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
 
 if __name__ == '__main__':
-    ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 9.1, 0.01, 1)]
+    ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     print(ass)
     cash = 100
     buying = buy_an_asset(ass, cash)
