@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from functools import lru_cache
 
 def calc_total_cost(assetsToBuy, assetsBuying):
     tot_sum = 0
@@ -24,6 +25,7 @@ def calc_total_cost(assetsToBuy, assetsBuying):
 iterations = 0
 isDebug = False
 
+@lru_cache(maxsize=None)
 def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []
     minMoneyLeft = moneyLeft
@@ -60,6 +62,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
 if __name__ == '__main__':
     ass = [("LQD", 2.5, 0.02), ("SCHA", 2.01, 0.02), ("S&P", 0.91, 0.01), ("C", 9.9, 0.01), ("AAPL", 9.1, 0.01)]
+    print(ass)
     cash = 100
     buying = buy_an_asset(ass, cash)
     cashUsed = calc_total_cost(ass, buying)
