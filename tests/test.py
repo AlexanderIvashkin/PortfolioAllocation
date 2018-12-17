@@ -37,10 +37,7 @@ class UnitTestsCase(unittest.TestCase):
         self.assertTrue(portfolio.buy_an_asset([("A", 4, 0), ("A", 6, 0), ("A", 4, 0), ("A", 5, 0)], 100) == [0,0,0,20])
         self.assertTrue(portfolio.buy_an_asset([("A", 4, 0), ("A", 6, 0), ("A", 4, 0), ("A", 5.1, 0)], 100) == [0,0,25,0])
         self.assertTrue(portfolio.buy_an_asset([("A", 4, 0), ("A", 6, 0), ("A", 4.1, 0), ("A", 5.1, 0)], 100) == [0,0,2,18])
-
-    def test_buyDeep(self):
-        self.assertTrue(portfolio.buy_an_asset([("A", 1, 0), ("A", 1, 0), ("A", 1, 0), ("A", 4, 0)], 120) == [0,0,0,30])
-        print("   Iterations: ", portfolio.iterations)
+        self.assertTrue(portfolio.buy_an_asset([("A", 1, 0), ("A", 1, 0), ("A", 1, 0), ("A", 4, 0)], 100) == [0,0,0,25])
 
 if __name__ == '__main__':
     unittest.main()

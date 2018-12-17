@@ -60,6 +60,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
 if __name__ == '__main__':
     ass = [("LQD", 2.5, 0.02), ("SCHA", 2.01, 0.02), ("S&P", 0.91, 0.01), ("C", 9.9, 0.01), ("AAPL", 9.1, 0.01)]
+    print(ass)
     cash = 100
     buying = buy_an_asset(ass, cash)
     cashUsed = calc_total_cost(ass, buying)
