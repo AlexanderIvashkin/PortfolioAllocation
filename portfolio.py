@@ -17,12 +17,14 @@
 
 def calc_sum_bought(assetsToBuy, assetsBuying):
     tot_sum = 0
+    #print("Got: {0}, {1}".format(assetsToBuy, assetsBuying))
     for ass, cnt in zip(assetsToBuy, assetsBuying):
+        #print("ass: {0}, cnt: {1}".format(ass, cnt))
         tot_sum += ass[1] * cnt
     return tot_sum
 
 def calc_fee(asset, cnt):
-    return max(asset[2] * cnt * asset[1], asset[3])
+    return 0 if cnt == 0 else max(asset[2] * cnt * asset[1], asset[3])
 
 def calc_sum_fees(assetsToBuy, assetsBuying):
     fees = 0
@@ -44,8 +46,14 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     if isDebug: print("fun called with: ", assetsToBuy, moneyLeft)
 
     currAsset = assetsToBuy[0]
+    cnt = 0
     if len(assetsToBuy) == 1:
-        return [int(moneyLeft / currAsset[1])]
+        maxCnt = int(moneyLeft / currAsset[1])
+        for cnt in range(maxCnt, 0, -1):
+            if calc_fee(currAsset, cnt) + calc_sum_bought([currAsset], [cnt]) <= moneyLeft:
+                break
+        return [cnt]
+
     leftAssetsToBuy = assetsToBuy[1:]
     if isDebug: print("leftAssetsToBuy: ", leftAssetsToBuy)
 
