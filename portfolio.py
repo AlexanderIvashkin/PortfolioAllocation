@@ -32,8 +32,26 @@ def calc_sum_fees(assetsToBuy, assetsBuying):
 
 iterations = 0
 isDebug = False
+isUseCache = True
+cacheHits = 0
+cacheMisses = 0
+memo = {}
 
 def buy_an_asset(assetsToBuy, moneyLeft):
+    global memo
+    global cacheHits
+    global cacheMisses
+    if isUseCache:
+        cacheLkp = ""
+        for ass in assetsToBuy:
+            cacheLkp += "{0},{1}/".format(ass[0], moneyLeft) 
+
+        if cacheLkp in memo:
+            cacheHits += 1
+            return memo[cacheLkp]
+
+        cacheMisses += 1
+
     minAssetsBuying = []
     minMoneyLeft = moneyLeft
     minFees = moneyLeft
@@ -52,7 +70,15 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - currAssetCount * currAsset[1]
         currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
+
+        if isUseCache:
+            cacheLkp = ""
+            for ass in leftAssetsToBuy:
+                cacheLkp += "{0},{1}/".format(ass[0], currMoneyLeft) 
+            memo[cacheLkp] = currAssetsBuying
+
         if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
+
         currMoneyLeft -= calc_sum_bought(leftAssetsToBuy, currAssetsBuying)
         if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
         if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
@@ -71,7 +97,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 if __name__ == '__main__':
     ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     print(ass)
-    cash = 100
+    cash = 150
     buying = buy_an_asset(ass, cash)
     cashUsed = calc_sum_bought(ass, buying)
     print("Will buy: ")
@@ -81,3 +107,7 @@ if __name__ == '__main__':
     print("Money left: ", cash - cashUsed)
     print("Total fees: ", calc_sum_fees(ass, buying))
     print("Calculated in ", iterations, " iterations")
+    if isUseCache:
+        print("Cache size ", len(memo))
+        print("Cache hits ", cacheHits)
+        print("Cache misses ", cacheMisses)
