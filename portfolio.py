@@ -32,6 +32,9 @@ def calc_sum_fees(assetsToBuy, assetsBuying):
         fees += calc_fee(ass, cnt)
     return fees
 
+def calc_bought_w_fees(assetsToBuy, assetsBuying):
+    return calc_sum_fees(assetsToBuy, assetsBuying) + calc_sum_bought(assetsToBuy, assetsBuying)
+
 iterations = 0
 isDebug = False
 
@@ -49,19 +52,25 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     cnt = 0
     if len(assetsToBuy) == 1:
         maxCnt = int(moneyLeft / currAsset[1])
-        for cnt in range(maxCnt, 0, -1):
-            if calc_fee(currAsset, cnt) + calc_sum_bought([currAsset], [cnt]) <= moneyLeft:
-                break
+        cnt = maxCnt
+        fee = calc_fee(currAsset, cnt)
+        cost = calc_sum_bought([currAsset], [cnt]) 
+        while cnt >= 0 and fee + cost > moneyLeft:
+            cnt -= 1
+            fee = calc_fee(currAsset, cnt)
+            cost = calc_sum_bought([currAsset], [cnt]) 
+            # print("Count: {4}, Fee: {0}, cost: {1}, fee+cost: {2}, money left: {3}".format(fee, cost, fee + cost, moneyLeft, cnt))
+        # print(cnt)
         return [cnt]
 
     leftAssetsToBuy = assetsToBuy[1:]
     if isDebug: print("leftAssetsToBuy: ", leftAssetsToBuy)
 
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
-        currMoneyLeft = moneyLeft - currAssetCount * currAsset[1]
+        currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
         currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
         if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
-        currMoneyLeft -= calc_sum_bought(leftAssetsToBuy, currAssetsBuying)
+        currMoneyLeft -= calc_sum_bought(leftAssetsToBuy, currAssetsBuying) + calc_sum_fees(leftAssetsToBuy, currAssetsBuying)
         if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
         if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
 
@@ -77,11 +86,12 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
 
 if __name__ == '__main__':
-    ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    #ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     print(ass)
     cash = 100
     buying = buy_an_asset(ass, cash)
-    cashUsed = calc_sum_bought(ass, buying)
+    cashUsed = calc_bought_w_fees(ass, buying)
     print("Will buy: ")
     for a, c in zip(ass, buying):
         print("   ", c, " of ", a[0], "@", a[1])
