@@ -67,7 +67,11 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     if isDebug: print("leftAssetsToBuy: ", leftAssetsToBuy)
 
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
-        currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
+        ### BUG HERE
+        currMoneyLeft = moneyLeft - calc_sum_bought([currAsset], [currAssetCount]) #- 1 # calc_sum_fees([currAsset], [currAssetCount])
+        ### BUG HERE
+        currMoneyLeft -= 1
+
         currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
         if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
         currMoneyLeft -= calc_sum_bought(leftAssetsToBuy, currAssetsBuying) + calc_sum_fees(leftAssetsToBuy, currAssetsBuying)
