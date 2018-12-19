@@ -67,22 +67,19 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     if isDebug: print("leftAssetsToBuy: ", leftAssetsToBuy)
 
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
-        ### BUG HERE
-        currMoneyLeft = moneyLeft - calc_sum_bought([currAsset], [currAssetCount]) #- 1 # calc_sum_fees([currAsset], [currAssetCount])
-        ### BUG HERE
-        currMoneyLeft -= 1
+        currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
+        if currMoneyLeft > 0:
+            currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
+            if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
+            currMoneyLeft -= calc_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
+            if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
+            if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
 
-        currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
-        if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
-        currMoneyLeft -= calc_sum_bought(leftAssetsToBuy, currAssetsBuying) + calc_sum_fees(leftAssetsToBuy, currAssetsBuying)
-        if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
-        if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
-
-        if currMoneyLeft < minMoneyLeft:
-            minMoneyLeft = currMoneyLeft
-            minAssetsBuying = [currAssetCount] + currAssetsBuying
-            if isDebug: print("        Found local min: minMoneyLeft: ", minMoneyLeft)
-            if isDebug: print("        minAssetsBuying: ", minAssetsBuying)
+            if currMoneyLeft >= 0 and currMoneyLeft < minMoneyLeft:
+                minMoneyLeft = currMoneyLeft
+                minAssetsBuying = [currAssetCount] + currAssetsBuying
+                if isDebug: print("        Found local min: minMoneyLeft: ", minMoneyLeft)
+                if isDebug: print("        minAssetsBuying: ", minAssetsBuying)
 
     returnValue = minAssetsBuying if minAssetsBuying != [] else [currAssetCount] + currAssetsBuying
     if isDebug: print("Exiting fun. Will return minAssetsBuying: ", returnValue)
