@@ -51,11 +51,13 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     currAsset = assetsToBuy[0]
     cnt = 0
     if len(assetsToBuy) == 1:
-        maxCnt = int(moneyLeft / currAsset[1])
+        maxCnt = int((moneyLeft - currAsset[3]) / currAsset[1])
+        if maxCnt == 0:
+            return [0]
         cnt = maxCnt
         fee = calc_fee(currAsset, cnt)
         cost = calc_sum_bought([currAsset], [cnt]) 
-        while cnt >= 0 and fee + cost > moneyLeft:
+        while cnt > 0 and fee + cost > moneyLeft:
             cnt -= 1
             fee = calc_fee(currAsset, cnt)
             cost = calc_sum_bought([currAsset], [cnt]) 
@@ -68,7 +70,8 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
-        if currMoneyLeft > 0:
+        # WTF if I uncomment the next line I'll get correct results. If not - then not!
+        if currMoneyLeft > 0: #and leftAssetsToBuy[0][1] + leftAssetsToBuy[0][3] <= currMoneyLeft:
             currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
             if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
             currMoneyLeft -= calc_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
@@ -81,7 +84,10 @@ def buy_an_asset(assetsToBuy, moneyLeft):
                 if isDebug: print("        Found local min: minMoneyLeft: ", minMoneyLeft)
                 if isDebug: print("        minAssetsBuying: ", minAssetsBuying)
 
-    returnValue = minAssetsBuying if minAssetsBuying != [] else [currAssetCount] + currAssetsBuying
+            returnValue = minAssetsBuying if minAssetsBuying != [] else [currAssetCount] + currAssetsBuying
+        else:
+            returnValue = minAssetsBuying if minAssetsBuying != [] else [currAssetCount] + [0 for x in leftAssetsToBuy]
+
     if isDebug: print("Exiting fun. Will return minAssetsBuying: ", returnValue)
     return returnValue
 
