@@ -53,6 +53,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     if isDebug: print("fun called with: ", assetsToBuy, moneyLeft)
 
     currAsset = assetsToBuy[0]
+
     # The base case
     if len(assetsToBuy) == 1:# {{{
         maxCnt = int((moneyLeft - currAsset[3]) / currAsset[1])
@@ -72,12 +73,16 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     leftAssetsToBuy = assetsToBuy[1:]
     if isDebug: print("leftAssetsToBuy: ", leftAssetsToBuy)
 
-    # Will add this to the minMoneyLeft to relax the constraint
+    # Will add this to the minimums to relax the constraint
     addML = (1 - _wML) * moneyLeft
     addMF = (1 - _wMF) * moneyLeft
-    for currAssetCount in range(0, int((moneyLeft - currAsset[3]) / currAsset[1]) + 1):
+
+    timesToCycle = int((moneyLeft - currAsset[3]) / currAsset[1])
+    timesToCycle = timesToCycle + 1 if timesToCycle >= 0 else 1
+    for currAssetCount in range(0, timesToCycle):
         currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
-        if currMoneyLeft > 0:
+        if currMoneyLeft >= 0:
+            # import pdb; pdb.set_trace()
             currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
             if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
             currMoneyLeft -= calc_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
@@ -86,7 +91,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             currFees = calc_sum_fees([currAsset] + leftAssetsToBuy, [currAssetCount] + currAssetsBuying)
 
             global _minFees
-            if currMoneyLeft >= 0 and currMoneyLeft < minMoneyLeft + addML and currFees < _minFees + addMF:
+            if currMoneyLeft >= 0 and currMoneyLeft <= minMoneyLeft + addML and currFees <= _minFees + addMF:
                 global _solutionsFound
                 _solutionsFound += 1
                 minMoneyLeft = currMoneyLeft
@@ -130,9 +135,13 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 if __name__ == '__main__':
     #ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    print(ass)
+    #ass = [("A", 4, 0, 0), ("A", 4, 0, 0)]
+    weights = [1, 1, 1]
     cash = 100
-    buying = allocate_assets(ass, cash, 1)
+    print("Allocating: ", ass)
+    print("Cash available: {:}".format(cash))
+    print("Weights: MinMoneyLeft: {:5.3f}, MinFees: {:5.3f}, PerfectAllocation: {:5.3f}".format(*weights))
+    buying = allocate_assets(ass, cash, *weights)
     cashUsed = calc_bought_w_fees(ass, buying)
     print("Will buy: ")
     for a, c in zip(ass, buying):

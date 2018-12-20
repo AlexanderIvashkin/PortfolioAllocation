@@ -28,11 +28,14 @@ class UnitTestsCase(unittest.TestCase):
 
     def test_buySome(self):
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 4) == [0,1])
-        self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 40) == [0,10])
+        self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 40) == [10,0])
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 4) == [1,0])
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 6) == [0,1])
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 10) == [0,2])
-        self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9) == [1,1])
+        # with no relaxation
+        self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9) == [0,1])
+        # with some relaxation
+        self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9, .9, .9) == [1,1])
         self.assertTrue(portfolio.allocate_assets([("A", 1, 0, 0), ("A", 1.1, 0, 0)], 666) == [6,600])
 
     def test_buyMany(self):
