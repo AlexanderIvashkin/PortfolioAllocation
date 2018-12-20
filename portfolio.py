@@ -35,9 +35,27 @@ def calc_sum_fees(assetsToBuy, assetsBuying):
 def calc_bought_w_fees(assetsToBuy, assetsBuying):
     return calc_sum_fees(assetsToBuy, assetsBuying) + calc_sum_bought(assetsToBuy, assetsBuying)
 
+def calc_sol_distance(sol):
+    """
+    Calculate distance (from the ideal solution)
+    """
+    # Max ML is moneyLeft (i.e. we don't buy anything)
+    # Min ML is zero
+    # distML is in range of 0-1
+    distML = (moneyLeft - calc_bought_w_fees(assetsToBuy, sol)) / moneyLeft
+    # Max MF is moneyLeft (i.e. we pay the max amount of fees)
+    # Min MF is zero
+    # distMF is in range of 0-1
+    distMF = (moneyLeft - calc_sum_fees(assetsToBuy, sol)) / moneyLeft
+    distMF = 1 - distMF
+
+    return distMF + distML
+
+
 iterations = 0
 isDebug = False
 _solutionsFound = 0
+_solutions = []
 _wML = 1
 _wMF = 1
 _wPA = 1
@@ -98,6 +116,8 @@ def buy_an_asset(assetsToBuy, moneyLeft):
                 minMoneyLeft = currMoneyLeft
                 _minFees = currFees
                 minAssetsBuying = [currAssetCount] + currAssetsBuying
+                global _solutions
+                _solutions += minAssetsBuying
                 if isDebug: print("        Found local min: minMoneyLeft: ", minMoneyLeft)
                 if isDebug: print("        minAssetsBuying: ", minAssetsBuying)
 
@@ -124,12 +144,18 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     _wML = wML
     _wMF = wMF
     _wPA = wPA
-
     global _minFees
     _minFees = moneyLeft
 
-    ### Check for "no solutions found"
-    result = buy_an_asset(assetsToBuy, moneyLeft)
+
+    ##### add validation / sanity checks!!!!
+
+    buy_an_asset(assetsToBuy, moneyLeft)
+
+    minSolutionDis = # ???_solutions[0]
+    bestSolution = []
+    for each sol in _solutions:
+
     return result if _solutionsFound > 0 else []
 
 
