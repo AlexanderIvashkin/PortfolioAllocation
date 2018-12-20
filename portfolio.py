@@ -70,7 +70,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
     for currAssetCount in range(0, int((moneyLeft - currAsset[3]) / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
-        if currMoneyLeft > 0 and leftAssetsToBuy[0][1] + leftAssetsToBuy[0][3] <= currMoneyLeft:
+        if currMoneyLeft > 0 and min([a[1] + a[3] for a in leftAssetsToBuy]) <= currMoneyLeft:
             currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
             if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
             currMoneyLeft -= calc_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     #ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     print(ass)
-    cash = 100
+    cash = 200
     buying = buy_an_asset(ass, cash)
     cashUsed = calc_bought_w_fees(ass, buying)
     print("Will buy: ")
