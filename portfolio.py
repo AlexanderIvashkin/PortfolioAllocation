@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import timeit
 
 def calc_sum_bought(assetsToBuy, assetsBuying):
     tot_sum = 0
@@ -36,6 +37,7 @@ def calc_bought_w_fees(assetsToBuy, assetsBuying):
     return calc_sum_fees(assetsToBuy, assetsBuying) + calc_sum_bought(assetsToBuy, assetsBuying)
 
 iterations = 0
+iterSavedByBacktrack = 0
 isDebug = False
 
 def buy_an_asset(assetsToBuy, moneyLeft):
@@ -43,6 +45,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     minMoneyLeft = moneyLeft
     minFees = moneyLeft
     global iterations
+    global iterSavedByBacktrack
     iterations += 1
 
     global isDebug
@@ -69,17 +72,24 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
         if currMoneyLeft > 0:
-            currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
-            if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
-            currMoneyLeft -= calc_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
-            if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
-            if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
+            isBacktrack = True
+            for a in leftAssetsToBuy:
+                if a[1] + a[3] <= currMoneyLeft: isBacktrack = False
+            if isBacktrack:
+                iterSavedByBacktrack += len(leftAssetsToBuy)
+                currAssetsBuying = minAssetsBuying if minAssetsBuying != [] else [currAssetCount]
+            else:
+                currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
+                if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
+                currMoneyLeft -= calc_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
+                if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
+                if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
 
-            if currMoneyLeft >= 0 and currMoneyLeft < minMoneyLeft:
-                minMoneyLeft = currMoneyLeft
-                minAssetsBuying = [currAssetCount] + currAssetsBuying
-                if isDebug: print("        Found local min: minMoneyLeft: ", minMoneyLeft)
-                if isDebug: print("        minAssetsBuying: ", minAssetsBuying)
+                if currMoneyLeft >= 0 and currMoneyLeft < minMoneyLeft:
+                    minMoneyLeft = currMoneyLeft
+                    minAssetsBuying = [currAssetCount] + currAssetsBuying
+                    if isDebug: print("        Found local min: minMoneyLeft: ", minMoneyLeft)
+                    if isDebug: print("        minAssetsBuying: ", minAssetsBuying)
 
     returnValue = minAssetsBuying if minAssetsBuying != [] else [currAssetCount] + currAssetsBuying
     if isDebug: print("Exiting fun. Will return minAssetsBuying: ", returnValue)
@@ -96,7 +106,8 @@ if __name__ == '__main__':
     print("Will buy: ")
     for a, c in zip(ass, buying):
         print("   ", c, " of ", a[0], "@", a[1])
-    print("Total cost: ", cashUsed)
+    print("Total cost: {0:2}".format(cashUsed))
     print("Money left: ", cash - cashUsed)
     print("Total fees: ", calc_sum_fees(ass, buying))
     print("Calculated in ", iterations, " iterations")
+    print("Saved {0} iterations by backtracking!".format(iterSavedByBacktrack))
