@@ -100,7 +100,7 @@ if __name__ == '__main__':
     #ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     print(ass)
-    cash = 100
+    cash = 150
     buying = buy_an_asset(ass, cash)
     cashUsed = calc_bought_w_fees(ass, buying)
     print("Will buy: ")
