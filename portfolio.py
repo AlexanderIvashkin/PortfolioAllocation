@@ -37,15 +37,15 @@ def calc_bought_w_fees(assetsToBuy, assetsBuying):
 
 iterations = 0
 isDebug = False
-solutionsMinMoneyLeft = 0
+_solutionsFound = 0
 _wML = 1
 _wMF = 1
 _wPA = 1
+_minFees = 0
 
 def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []
     minMoneyLeft = moneyLeft
-    minFees = moneyLeft
     global iterations
     iterations += 1
 
@@ -54,7 +54,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
     currAsset = assetsToBuy[0]
     # The base case
-    if len(assetsToBuy) == 1:
+    if len(assetsToBuy) == 1:# {{{
         maxCnt = int((moneyLeft - currAsset[3]) / currAsset[1])
         if maxCnt == 0:
             return [0]
@@ -67,13 +67,14 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             cost = calc_sum_bought([currAsset], [cnt]) 
             # print("Count: {4}, Fee: {0}, cost: {1}, fee+cost: {2}, money left: {3}".format(fee, cost, fee + cost, moneyLeft, cnt))
         # print(cnt)
-        return [cnt]
+        return [cnt]# }}}
 
     leftAssetsToBuy = assetsToBuy[1:]
     if isDebug: print("leftAssetsToBuy: ", leftAssetsToBuy)
 
     # Will add this to the minMoneyLeft to relax the constraint
     addML = (1 - _wML) * moneyLeft
+    addMF = (1 - _wMF) * moneyLeft
     for currAssetCount in range(0, int((moneyLeft - currAsset[3]) / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
         if currMoneyLeft > 0:
@@ -82,11 +83,14 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             currMoneyLeft -= calc_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
             if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
             if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
+            currFees = calc_sum_fees([currAsset] + leftAssetsToBuy, [currAssetCount] + currAssetsBuying)
 
-            if currMoneyLeft >= 0 and currMoneyLeft < minMoneyLeft + addML:
-                #global solutionsMinMoneyLeft
-                #solutionsMinMoneyLeft += 1
+            global _minFees
+            if currMoneyLeft >= 0 and currMoneyLeft < minMoneyLeft + addML and currFees < _minFees + addMF:
+                global _solutionsFound
+                _solutionsFound += 1
                 minMoneyLeft = currMoneyLeft
+                _minFees = currFees
                 minAssetsBuying = [currAssetCount] + currAssetsBuying
                 if isDebug: print("        Found local min: minMoneyLeft: ", minMoneyLeft)
                 if isDebug: print("        minAssetsBuying: ", minAssetsBuying)
@@ -115,7 +119,12 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     _wMF = wMF
     _wPA = wPA
 
-    return buy_an_asset(assetsToBuy, moneyLeft)
+    global _minFees
+    _minFees = moneyLeft
+
+    ### Check for "no solutions found"
+    result = buy_an_asset(assetsToBuy, moneyLeft)
+    return result if _solutionsFound > 0 else []
 
 
 if __name__ == '__main__':
@@ -132,4 +141,4 @@ if __name__ == '__main__':
     print("Money left: ", cash - cashUsed)
     print("Total fees: ", calc_sum_fees(ass, buying))
     print("Calculated in ", iterations, " iterations")
-    #print("Solutions found: {:} min money left".format(solutionsMinMoneyLeft))
+    print("Solutions found: {:}".format(_solutionsFound))
