@@ -6,7 +6,7 @@ class UnitTestsCase(unittest.TestCase):
     def test_calcFee(self):
         self.assertTrue(portfolio.calc_fee(("A", 5, 0.01, 1), 4) == 1)
         self.assertTrue(portfolio.calc_fee(("A", 5, 0.01, 1), 40) == 2)
-        #self.assertTrue(portfolio.calc_fee(("A", 25.25, 0.01, 1), 10) == 2.525)
+        self.assertTrue("{:.3f}".format(portfolio.calc_fee(("A", 25.25, 0.01, 1), 10)) == "2.525")
 
 
     def test_buyNothing(self):
