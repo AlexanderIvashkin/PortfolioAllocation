@@ -72,10 +72,10 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
         if currMoneyLeft > 0:
-            isBacktrack = True
-            for a in leftAssetsToBuy:
-                if a[1] + a[3] <= currMoneyLeft: isBacktrack = False
-            if isBacktrack:
+            # isBacktrack = True
+            # for a in leftAssetsToBuy:
+            #     if a[1] + a[3] <= currMoneyLeft: isBacktrack = False
+            if leftAssetsToBuy[0][1] + leftAssetsToBuy[0][3] > currMoneyLeft: # isBacktrack:
                 iterSavedByBacktrack += len(leftAssetsToBuy)
                 currAssetsBuying = minAssetsBuying if minAssetsBuying != [] else [currAssetCount]
             else:
