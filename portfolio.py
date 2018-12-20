@@ -35,7 +35,7 @@ def calc_sum_fees(assetsToBuy, assetsBuying):
 def calc_bought_w_fees(assetsToBuy, assetsBuying):
     return calc_sum_fees(assetsToBuy, assetsBuying) + calc_sum_bought(assetsToBuy, assetsBuying)
 
-def calc_sol_distance(sol):
+def calc_sol_distance(assetsToBuy, sol, moneyLeft):
     """
     Calculate distance (from the ideal solution)
     """
@@ -46,8 +46,7 @@ def calc_sol_distance(sol):
     # Max MF is moneyLeft (i.e. we pay the max amount of fees)
     # Min MF is zero
     # distMF is in range of 0-1
-    distMF = (moneyLeft - calc_sum_fees(assetsToBuy, sol)) / moneyLeft
-    distMF = 1 - distMF
+    distMF = calc_sum_fees(assetsToBuy, sol) / moneyLeft
 
     return distMF + distML
 
@@ -150,11 +149,13 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 
     ##### add validation / sanity checks!!!!
 
-    buy_an_asset(assetsToBuy, moneyLeft)
+    result = buy_an_asset(assetsToBuy, moneyLeft)
 
-    minSolutionDis = # ???_solutions[0]
-    bestSolution = []
-    for each sol in _solutions:
+    # minSolutionDis = # ???_solutions[0]
+    # bestSolution = []
+    # for each sol in _solutions:
+
+    #print("Sol distance: ", calc_sol_distance(assetsToBuy, result, moneyLeft))
 
     return result if _solutionsFound > 0 else []
 
