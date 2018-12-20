@@ -45,7 +45,6 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     minMoneyLeft = moneyLeft
     minFees = moneyLeft
     global iterations
-    global iterSavedByBacktrack
     iterations += 1
 
     global isDebug
@@ -72,10 +71,8 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     for currAssetCount in range(0, int(moneyLeft / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
         if currMoneyLeft > 0:
-            # isBacktrack = True
-            # for a in leftAssetsToBuy:
-            #     if a[1] + a[3] <= currMoneyLeft: isBacktrack = False
-            if leftAssetsToBuy[0][1] + leftAssetsToBuy[0][3] > currMoneyLeft: # isBacktrack:
+            if leftAssetsToBuy[0][1] + leftAssetsToBuy[0][3] > currMoneyLeft:
+                global iterSavedByBacktrack
                 iterSavedByBacktrack += len(leftAssetsToBuy)
                 currAssetsBuying = minAssetsBuying if minAssetsBuying != [] else [currAssetCount]
             else:
@@ -98,7 +95,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
 if __name__ == '__main__':
     #ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    ass = [("LQD", 1, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     print(ass)
     cash = 150
     buying = buy_an_asset(ass, cash)
