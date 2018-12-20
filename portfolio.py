@@ -91,6 +91,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             currFees = calc_sum_fees([currAsset] + leftAssetsToBuy, [currAssetCount] + currAssetsBuying)
 
             global _minFees
+            ### We need to gather ALL the solutions and then find the best using the sum-of-squares distance
             if currMoneyLeft >= 0 and currMoneyLeft <= minMoneyLeft + addML and currFees <= _minFees + addMF:
                 global _solutionsFound
                 _solutionsFound += 1
@@ -133,8 +134,8 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 
 
 if __name__ == '__main__':
-    #ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    #ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     #ass = [("A", 4, 0, 0), ("A", 4, 0, 0)]
     weights = [1, 1, 1]
     cash = 100
