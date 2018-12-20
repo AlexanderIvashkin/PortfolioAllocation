@@ -36,8 +36,11 @@ def calc_bought_w_fees(assetsToBuy, assetsBuying):
     return calc_sum_fees(assetsToBuy, assetsBuying) + calc_sum_bought(assetsToBuy, assetsBuying)
 
 iterations = 0
-iterSavedByBacktrack = 0
 isDebug = False
+solutionsMinMoneyLeft = 0
+_wML = 1
+_wMF = 1
+_wPA = 1
 
 def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []
@@ -50,6 +53,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     if isDebug: print("fun called with: ", assetsToBuy, moneyLeft)
 
     currAsset = assetsToBuy[0]
+    # The base case
     if len(assetsToBuy) == 1:
         maxCnt = int((moneyLeft - currAsset[3]) / currAsset[1])
         if maxCnt == 0:
@@ -68,16 +72,20 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     leftAssetsToBuy = assetsToBuy[1:]
     if isDebug: print("leftAssetsToBuy: ", leftAssetsToBuy)
 
+    # Will add this to the minMoneyLeft to relax the constraint
+    addML = (1 - _wML) * moneyLeft
     for currAssetCount in range(0, int((moneyLeft - currAsset[3]) / currAsset[1]) + 1):
         currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
-        if currMoneyLeft > 0 and leftAssetsToBuy[0][1] + leftAssetsToBuy[0][3] <= currMoneyLeft:
+        if currMoneyLeft > 0:
             currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
             if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
             currMoneyLeft -= calc_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
             if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
             if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
 
-            if currMoneyLeft >= 0 and currMoneyLeft < minMoneyLeft:
+            if currMoneyLeft >= 0 and currMoneyLeft < minMoneyLeft + addML:
+                #global solutionsMinMoneyLeft
+                #solutionsMinMoneyLeft += 1
                 minMoneyLeft = currMoneyLeft
                 minAssetsBuying = [currAssetCount] + currAssetsBuying
                 if isDebug: print("        Found local min: minMoneyLeft: ", minMoneyLeft)
@@ -85,12 +93,29 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
             returnValue = minAssetsBuying if minAssetsBuying != [] else [currAssetCount] + currAssetsBuying
         else:
-            global iterSavedByBacktrack
-            iterSavedByBacktrack += 1
             returnValue = minAssetsBuying if minAssetsBuying != [] else [currAssetCount] + [0 for x in leftAssetsToBuy]
 
     if isDebug: print("Exiting fun. Will return minAssetsBuying: ", returnValue)
     return returnValue
+
+def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
+    """
+    Find the best allocation of assets.
+    assetsToBuy: a list of tuples with assets (format TBD)
+    moneyLeft: a value of money we can use
+    wML: weight of "Min money left" solution where 1 is "No leeway" and 0 is "I don't care about this"
+    wMF: weight of "Min fees" solution
+    wPA: weight of "Perfect Allocation" solution
+    """
+    
+    global _wML
+    global _wMF
+    global _wPA
+    _wML = wML
+    _wMF = wMF
+    _wPA = wPA
+
+    return buy_an_asset(assetsToBuy, moneyLeft)
 
 
 if __name__ == '__main__':
@@ -98,13 +123,13 @@ if __name__ == '__main__':
     ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     print(ass)
     cash = 100
-    buying = buy_an_asset(ass, cash)
+    buying = allocate_assets(ass, cash, 1)
     cashUsed = calc_bought_w_fees(ass, buying)
     print("Will buy: ")
     for a, c in zip(ass, buying):
-        print("   {0:4d} of {1:6} @ {2:7.2f} (total: {3:7.2f})".format(c, a[0], a[1], c * a[1]))
+        print("   {0:4d} of {1:6} @ {2:8.2f} (total: {3:8.2f}, fees: {4:6.2f})".format(c, a[0], a[1], c * a[1], calc_fee(a, c)))
     print("Total cost: ", cashUsed)
     print("Money left: ", cash - cashUsed)
     print("Total fees: ", calc_sum_fees(ass, buying))
     print("Calculated in ", iterations, " iterations")
-    print("Iterations saved by backtracking: {0} ({1:2.2%})".format(iterSavedByBacktrack, iterSavedByBacktrack/(iterations+iterSavedByBacktrack)))
+    #print("Solutions found: {:} min money left".format(solutionsMinMoneyLeft))
