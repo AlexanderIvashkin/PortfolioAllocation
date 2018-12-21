@@ -55,6 +55,7 @@ iterations = 0
 isDebug = False
 _solutionsFound = 0
 _solutions = []
+_lenAss = 0
 _wML = 1
 _wMF = 1
 _wPA = 1
@@ -108,15 +109,18 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             currFees = calc_sum_fees([currAsset] + leftAssetsToBuy, [currAssetCount] + currAssetsBuying)
 
             global _minFees
-            ### We need to gather ALL the solutions and then find the best using the sum-of-squares distance
             if currMoneyLeft >= 0 and currMoneyLeft <= minMoneyLeft + addML and currFees <= _minFees + addMF:
-                global _solutionsFound
-                _solutionsFound += 1
+
                 minMoneyLeft = currMoneyLeft
-                _minFees = currFees
                 minAssetsBuying = [currAssetCount] + currAssetsBuying
-                global _solutions
-                _solutions += minAssetsBuying
+                _minFees = currFees
+                global _lenAss
+                if len(assetsToBuy) == _lenAss:
+                    global _solutionsFound
+                    _solutionsFound += 1
+                    global _solutions
+                    _solutions += [minAssetsBuying]
+
                 if isDebug: print("        Found local min: minMoneyLeft: ", minMoneyLeft)
                 if isDebug: print("        minAssetsBuying: ", minAssetsBuying)
 
@@ -145,27 +149,43 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     _wPA = wPA
     global _minFees
     _minFees = moneyLeft
+    global _lenAss
+    _lenAss = len(assetsToBuy)
+    #print("_lenAss:", _lenAss)
 
 
     ##### add validation / sanity checks!!!!
 
-    result = buy_an_asset(assetsToBuy, moneyLeft)
+    buy_an_asset(assetsToBuy, moneyLeft)
 
-    # minSolutionDis = # ???_solutions[0]
-    # bestSolution = []
-    # for each sol in _solutions:
+    if _solutionsFound >0:
+        global _solutions
+        print("Solutions: {}".format(len(_solutions)))
+        #print(_solutions)
+        minSolutionDis = calc_sol_distance(assetsToBuy, _solutions[0], moneyLeft)
+        bestSolution = _solutions[0]
+        _bestSolutionsFound = 0
+        #print("Starting Sol distance: {:5.2f}, solution: {}".format(minSolutionDis, bestSolution))
+        for sol in _solutions:
+            currSolDis = calc_sol_distance(assetsToBuy, sol, moneyLeft)
+            if currSolDis <= minSolutionDis:
+                minSolutionDis = currSolDis
+                bestSolution = sol
+                _bestSolutionsFound += 1
 
-    #print("Sol distance: ", calc_sol_distance(assetsToBuy, result, moneyLeft))
+        print("Best solutions found: {}".format(_bestSolutionsFound))
+        return bestSolution
+    else:
+        return []
 
-    return result if _solutionsFound > 0 else []
 
 
 if __name__ == '__main__':
-    ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    #ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    #ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     #ass = [("A", 4, 0, 0), ("A", 4, 0, 0)]
-    weights = [1, 1, 1]
-    cash = 100
+    weights = [.9, .9, 1]
+    cash = 150
     print("Allocating: ", ass)
     print("Cash available: {:}".format(cash))
     print("Weights: MinMoneyLeft: {:5.3f}, MinFees: {:5.3f}, PerfectAllocation: {:5.3f}".format(*weights))
