@@ -182,11 +182,13 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     if any(_cantBuySome):
         raise TooLittleCash
 
+    global _solutionsFound
+    _solutionsFound = 0
+    global _solutions
+    _solutions = []
     result = buy_an_asset(assetsToBuy, moneyLeft)
 
-    global _solutionsFound
     if len(assetsToBuy) > 1 and _solutionsFound > 0:
-        global _solutions
         # print("Solutions: {}".format(len(_solutions)))
         #print(_solutions)
         minSolutionDis = calc_sol_distance(assetsToBuy, _solutions[0], moneyLeft)

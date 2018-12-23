@@ -22,11 +22,10 @@ class UnitTestsCase(unittest.TestCase):
         self.assertTrue(portfolio.allocate_assets([("A", 1, 0, 0)], 666) == [666])
         self.assertTrue(portfolio.allocate_assets([("A", 1, 0, 0)], 6660) == [6660])
 
-    @unittest.skip("to be re-written")
     def test_buySome(self):
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 4) == [1,0])
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 40) == [10,0])
-        self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 4) == [1,0])
+        self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 4) == [1,0])
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 6) == [0,1])
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 10) == [0,2])
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9) == [1,1])
