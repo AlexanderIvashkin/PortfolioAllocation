@@ -45,7 +45,7 @@ def calc_sum_fees(assetsToBuy, assetsBuying):
         fees += calc_fee(ass, cnt)
     return fees
 
-def calc_bought_w_fees(assetsToBuy, assetsBuying):
+def calc_sum_bought_w_fees(assetsToBuy, assetsBuying):
     return calc_sum_fees(assetsToBuy, assetsBuying) + calc_sum_bought(assetsToBuy, assetsBuying)
 
 def calc_sol_distance(assetsToBuy, sol, moneyLeft):
@@ -55,7 +55,7 @@ def calc_sol_distance(assetsToBuy, sol, moneyLeft):
     # Max ML is moneyLeft (i.e. we don't buy anything)
     # Min ML is zero
     # distML is in range of 0-1
-    distML = (moneyLeft - calc_bought_w_fees(assetsToBuy, sol)) / moneyLeft
+    distML = (moneyLeft - calc_sum_bought_w_fees(assetsToBuy, sol)) / moneyLeft
     # Max MF is moneyLeft (i.e. we pay the max amount of fees)
     # Min MF is zero
     # distMF is in range of 0-1
@@ -113,12 +113,12 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     timesToCycle = int((moneyLeft - currAsset[3]) / currAsset[1])
     timesToCycle = timesToCycle + 1 if timesToCycle >= 0 else 1
     for currAssetCount in range(0, timesToCycle):
-        currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
+        currMoneyLeft = moneyLeft - calc_sum_bought_w_fees([currAsset], [currAssetCount])
         if currMoneyLeft >= 0:
             # import pdb; pdb.set_trace()
             currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
             if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
-            currMoneyLeft -= calc_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
+            currMoneyLeft -= calc_sum_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
             if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
             if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
             currFees = calc_sum_fees([currAsset] + leftAssetsToBuy, [currAssetCount] + currAssetsBuying)
@@ -178,7 +178,7 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     if not all(_feesPosit):
         raise NegativeFees
 
-    _cantBuySome = [calc_bought_w_fees([a], [1]) > moneyLeft for a in assetsToBuy]
+    _cantBuySome = [calc_sum_bought_w_fees([a], [1]) > moneyLeft for a in assetsToBuy]
     if any(_cantBuySome):
         raise TooLittleCash
 
@@ -223,7 +223,7 @@ if __name__ == '__main__':
     print("Cash available: {:}".format(cash))
     print("Weights: MinMoneyLeft: {:5.3f}, MinFees: {:5.3f}, PerfectAllocation: {:5.3f}".format(*weights))
     buying = allocate_assets(ass, cash, *weights)
-    cashUsed = calc_bought_w_fees(ass, buying)
+    cashUsed = calc_sum_bought_w_fees(ass, buying)
     print("Will buy: ")
     for a, c in zip(ass, buying):
         print("   {0:4d} of {1:6} @ {2:8.2f} (total: {3:8.2f}, fees: {4:6.2f})".format(c, a[0], a[1], c * a[1], calc_fee(a, c)))
