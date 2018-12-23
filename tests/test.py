@@ -12,15 +12,6 @@ class UnitTestsCase(unittest.TestCase):
     def test_calc_bought_w_fees(self):
         self.assertTrue(portfolio.calc_bought_w_fees([("A", 1, 0, 10)], [1]) == 11)
 
-    @unittest.skip("skipped, need to be re-written")
-    def test_buyNothing(self):
-        self.assertTrue(portfolio.allocate_assets([("A", 5, 0, 0)], 4) == [])
-        self.assertTrue(portfolio.allocate_assets([("A", 5, 0, 0), ("A", 5, 0, 0)], 4) == [])
-        self.assertTrue(portfolio.allocate_assets([("A", 5, 0, 0), ("A", 5, 0, 0), ("A", 5, 0, 0)], 4) == [])
-        self.assertTrue(portfolio.allocate_assets([("A", 4.000001, 0, 0), ("A", 4.1, 0, 0), ("A", 4.000000000001, 0, 0)], 4) == [])
-        self.assertTrue(portfolio.allocate_assets([("A", 101, 0, 0)], 100) == [])
-
-    @unittest.skip("skipped, need to be re-written")
     def test_buyOneAssetClass(self):
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0)], 4) == [1])
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0)], 7) == [1])
@@ -31,7 +22,7 @@ class UnitTestsCase(unittest.TestCase):
         self.assertTrue(portfolio.allocate_assets([("A", 1, 0, 0)], 666) == [666])
         self.assertTrue(portfolio.allocate_assets([("A", 1, 0, 0)], 6660) == [6660])
 
-    @unittest.skip("skipped, need to be re-written")
+    @unittest.skip("to be re-written")
     def test_buySome(self):
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 4) == [1,0])
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 40) == [10,0])
@@ -41,7 +32,7 @@ class UnitTestsCase(unittest.TestCase):
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9) == [1,1])
         self.assertTrue(portfolio.allocate_assets([("A", 1, 0, 0), ("A", 1.1, 0, 0)], 666) == [666,0])
 
-    @unittest.skip("skipped, need to be re-written")
+    @unittest.skip("to be re-written")
     def test_buyMany(self):
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0), ("A", 4, 0, 0), ("A", 5, 0, 0)], 9) == [1,0,0,1])
         self.assertTrue(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 2, 0, 0), ("A", 6, 0, 0), ("A", 7, 0, 0)], 15.7) == [2,0,0,1])

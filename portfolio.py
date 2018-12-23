@@ -88,11 +88,13 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     # The base case
     if len(assetsToBuy) == 1:# {{{
         maxCnt = int((moneyLeft - currAsset[3]) / currAsset[1])
+        #print("maxCnt: {}".format(maxCnt))
         if maxCnt == 0:
             return [0]
         cnt = maxCnt
         fee = calc_fee(currAsset, cnt)
         cost = calc_sum_bought([currAsset], [cnt]) 
+        #print("fee + cost: {}, will 'while': {}".format(fee + cost, cnt > 0 and fee + cost > moneyLeft))
         while cnt > 0 and fee + cost > moneyLeft:
             cnt -= 1
             fee = calc_fee(currAsset, cnt)
@@ -180,9 +182,10 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     if any(_cantBuySome):
         raise TooLittleCash
 
-    buy_an_asset(assetsToBuy, moneyLeft)
+    result = buy_an_asset(assetsToBuy, moneyLeft)
 
-    if _solutionsFound > 0:
+    global _solutionsFound
+    if len(assetsToBuy) > 1 and _solutionsFound > 0:
         global _solutions
         # print("Solutions: {}".format(len(_solutions)))
         #print(_solutions)
@@ -197,10 +200,14 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
                 bestSolution = sol
                 _bestSolutionsFound += 1
 
-        print("Best solutions found: {}".format(_bestSolutionsFound))
+        #print("Best solutions found: {}".format(_bestSolutionsFound))
         return bestSolution
     else:
-        return []
+        if len(assetsToBuy) == 1:
+            _solutionsFound = 1
+            return result
+        else:
+            return []
 
 
 
@@ -209,7 +216,7 @@ if __name__ == '__main__':
     # ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     ass = [("A", 5, 0, 0)]
     weights = [1, 1, 1]
-    cash = 4
+    cash = 5
     print("Allocating: ", ass)
     print("Cash available: {:}".format(cash))
     print("Weights: MinMoneyLeft: {:5.3f}, MinFees: {:5.3f}, PerfectAllocation: {:5.3f}".format(*weights))
