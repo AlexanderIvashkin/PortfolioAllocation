@@ -14,6 +14,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# Custom errors
+class NonPositivePrices(ValueError):
+    """All prices must be larger than zero"""
+
+class NegativeFees(ValueError):
+    """All fees must be positive"""
+
+class TooLittleCash(ValueError):
+    """Can't buy even one security"""
+
+class DuplicateAssetTickers(ValueError):
+    """Duplicate asset tickers found"""
+
 
 def calc_sum_bought(assetsToBuy, assetsBuying):
     tot_sum = 0
@@ -155,12 +168,19 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 
 
     ##### add validation / sanity checks!!!!
+    _pricesPosit = [c[1] > 0 for c in assetsToBuy]
+    if not all(_pricesPosit):
+        raise NonPositivePrices
+
+    _feesPosit = [f[2] >= 0 and f[3] >= 0 for f in assetsToBuy]
+    if not all(_feesPosit):
+        raise NegativeFees
 
     buy_an_asset(assetsToBuy, moneyLeft)
 
-    if _solutionsFound >0:
+    if _solutionsFound > 0:
         global _solutions
-        print("Solutions: {}".format(len(_solutions)))
+        # print("Solutions: {}".format(len(_solutions)))
         #print(_solutions)
         minSolutionDis = calc_sol_distance(assetsToBuy, _solutions[0], moneyLeft)
         bestSolution = _solutions[0]
@@ -182,10 +202,10 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 
 if __name__ == '__main__':
     #ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    #ass = [("A", 4, 0, 0), ("A", 4, 0, 0)]
-    weights = [.9, .9, 1]
-    cash = 150
+    # ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    ass = [("A", 5, 0, 0)]
+    weights = [1, 1, 1]
+    cash = 4
     print("Allocating: ", ass)
     print("Cash available: {:}".format(cash))
     print("Weights: MinMoneyLeft: {:5.3f}, MinFees: {:5.3f}, PerfectAllocation: {:5.3f}".format(*weights))
