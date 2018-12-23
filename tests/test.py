@@ -7,7 +7,10 @@ class UnitTestsCase(unittest.TestCase):
         self.assertTrue(portfolio.calc_fee(("A", 5, 0.01, 1), 4) == 1)
         self.assertTrue(portfolio.calc_fee(("A", 5, 0.01, 1), 40) == 2)
         self.assertTrue("{:.3f}".format(portfolio.calc_fee(("A", 25.25, 0.01, 1), 10)) == "2.525")
+        self.assertTrue(portfolio.calc_fee(("A", 1, 0, 10), 1) == 10)
 
+    def test_calc_bought_w_fees(self):
+        self.assertTrue(portfolio.calc_bought_w_fees([("A", 1, 0, 10)], [1]) == 11)
 
     @unittest.skip("skipped, need to be re-written")
     def test_buyNothing(self):
@@ -90,6 +93,19 @@ class UnitTestsCase(unittest.TestCase):
             portfolio.allocate_assets([("A", 1, 1, 1), ("A", 5, -1, 0)], 9, .9, .9)
         with self.assertRaises(portfolio.NegativeFees):
             portfolio.allocate_assets([("A", 1, 1, 1), ("A", 5, 1, -1)], 9, .9, .9)
+
+    def test_too_little_cash(self):
+        with self.assertRaises(portfolio.TooLittleCash):
+            portfolio.allocate_assets([("A", 10, 0, 0), ("A", 15, 0, 0)], 9, .9, .9)
+        with self.assertRaises(portfolio.TooLittleCash):
+            portfolio.allocate_assets([("A", 1, 0, 10), ("A", 5, 0, 10)], 9, .9, .9)
+        with self.assertRaises(portfolio.TooLittleCash):
+            portfolio.allocate_assets([("A", 1, 0, 1), ("A", 5, 0, 10)], 9, .9, .9)
+        with self.assertRaises(portfolio.TooLittleCash):
+            portfolio.allocate_assets([("A", 1, 0, 1), ("A", 5, 1, 0)], 9, .9, .9)
+
+
+
 
 
 if __name__ == '__main__':

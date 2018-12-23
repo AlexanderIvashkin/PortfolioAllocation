@@ -176,6 +176,10 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     if not all(_feesPosit):
         raise NegativeFees
 
+    _cantBuySome = [calc_bought_w_fees([a], [1]) > moneyLeft for a in assetsToBuy]
+    if any(_cantBuySome):
+        raise TooLittleCash
+
     buy_an_asset(assetsToBuy, moneyLeft)
 
     if _solutionsFound > 0:
