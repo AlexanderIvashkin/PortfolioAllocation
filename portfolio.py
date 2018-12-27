@@ -61,11 +61,12 @@ def calc_sol_distance(assetsToBuy, sol, moneyLeft):
     # distMF is in range of 0-1
     distMF = calc_sum_fees(assetsToBuy, sol) / moneyLeft
 
+    ### TODO should be sum of squares
     return distMF + distML
 
 
 iterations = 0
-isDebug = False
+isDebug = True
 _solutionsFound = 0
 _solutions = []
 _lenAss = 0
@@ -106,10 +107,6 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     leftAssetsToBuy = assetsToBuy[1:]
     if isDebug: print("leftAssetsToBuy: ", leftAssetsToBuy)
 
-    # Will add this to the minimums to relax the constraint
-    addML = (1 - _wML) * moneyLeft
-    addMF = (1 - _wMF) * moneyLeft
-
     timesToCycle = int((moneyLeft - currAsset[3]) / currAsset[1])
     timesToCycle = timesToCycle + 1 if timesToCycle >= 0 else 1
     for currAssetCount in range(0, timesToCycle):
@@ -124,7 +121,9 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             currFees = calc_sum_fees([currAsset] + leftAssetsToBuy, [currAssetCount] + currAssetsBuying)
 
             global _minFees
-            if currMoneyLeft >= 0 and currMoneyLeft <= minMoneyLeft + addML and currFees <= _minFees + addMF:
+            global _addML
+            global _addMF
+            if currMoneyLeft >= 0 and currMoneyLeft <= minMoneyLeft + _addML and currFees <= _minFees + _addMF:
 
                 minMoneyLeft = currMoneyLeft
                 minAssetsBuying = [currAssetCount] + currAssetsBuying
@@ -162,6 +161,13 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     _wML = wML
     _wMF = wMF
     _wPA = wPA
+
+    global _addML
+    global _addMF
+    # Will add this to the minimums to relax the constraint
+    _addML = (1 - _wML) * moneyLeft
+    _addMF = (1 - _wMF) * moneyLeft
+
     global _minFees
     _minFees = moneyLeft
     global _lenAss

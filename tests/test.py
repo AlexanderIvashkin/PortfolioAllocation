@@ -50,7 +50,7 @@ class UnitTestsCase(unittest.TestCase):
         # self.assertEqual(portfolio.iterations, 310124)
 
     def test_buySomeRelax(self):
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9, .9, .9), [1,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9, 1, .9), [1,1])
 
 
     def test_calcDistOnlyML(self):
