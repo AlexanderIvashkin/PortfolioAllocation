@@ -10,7 +10,7 @@ class UnitTestsCase(unittest.TestCase):
         self.assertEqual(portfolio.calc_fee(("A", 1, 0, 10), 1), 10)
 
     def test_calc_bought_w_fees(self):
-        self.assertEqual(portfolio.calc_bought_w_fees([("A", 1, 0, 10)], [1]), 11)
+        self.assertEqual(portfolio.calc_sum_bought_w_fees([("A", 1, 0, 10)], [1]), 11)
 
     def test_buyOneAssetClass(self):
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0)], 4), [1])
