@@ -48,25 +48,29 @@ def calc_sum_fees(assetsToBuy, assetsBuying):
 def calc_sum_bought_w_fees(assetsToBuy, assetsBuying):
     return calc_sum_fees(assetsToBuy, assetsBuying) + calc_sum_bought(assetsToBuy, assetsBuying)
 
-def calc_sol_distance(assetsToBuy, sol, moneyLeft):
+def calc_sol_distance(assetsToBuy, sol, moneyLeft, wML = 1, wMF = 1, wPA = 1):
     """
     Calculate distance (from the ideal solution)
     """
     # Max ML is moneyLeft (i.e. we don't buy anything)
     # Min ML is zero
     # distML is in range of 0-1
-    distML = (moneyLeft - calc_sum_bought_w_fees(assetsToBuy, sol)) / moneyLeft
+    if wML == 0:
+        distML = 0
+    else:
+        distML = (moneyLeft - calc_sum_bought_w_fees(assetsToBuy, sol)) / moneyLeft * wML
     # Max MF is moneyLeft (i.e. we pay the max amount of fees)
     # Min MF is zero
     # distMF is in range of 0-1
     distMF = calc_sum_fees(assetsToBuy, sol) / moneyLeft
+    ### TODO should use addML / addMF!!!
 
     ### TODO should be sum of squares
     return distMF + distML
 
 
 iterations = 0
-isDebug = True
+isDebug = False
 _solutionsFound = 0
 _solutions = []
 _lenAss = 0
@@ -76,7 +80,7 @@ _wPA = 1
 _minFees = 0
 
 def buy_an_asset(assetsToBuy, moneyLeft):
-    minAssetsBuying = []
+    minAssetsBuying = []# {{{
     minMoneyLeft = moneyLeft
     global iterations
     iterations += 1
@@ -143,7 +147,9 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             returnValue = minAssetsBuying if minAssetsBuying != [] else [currAssetCount] + [0 for x in leftAssetsToBuy]
 
     if isDebug: print("Exiting fun. Will return minAssetsBuying: ", returnValue)
-    return returnValue
+    return returnValue# }}}
+
+
 
 def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     """
@@ -220,11 +226,11 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 
 
 if __name__ == '__main__':
-    #ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    ass = [("VNQI", 3.5, 0.01, 1), ("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     # ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    ass = [("A", 5, 0, 0)]
-    weights = [1, 1, 1]
-    cash = 5
+    #ass = [("A", 5, 0, 0)]
+    weights = [.9, .9, 1]
+    cash = 100
     print("Allocating: ", ass)
     print("Cash available: {:}".format(cash))
     print("Weights: MinMoneyLeft: {:5.3f}, MinFees: {:5.3f}, PerfectAllocation: {:5.3f}".format(*weights))
