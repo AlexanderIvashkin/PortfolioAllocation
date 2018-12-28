@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from math import sqrt
+
 # Custom errors
 class NonPositivePrices(ValueError):
     """All prices must be larger than zero"""
@@ -26,6 +28,12 @@ class TooLittleCash(ValueError):
 
 class DuplicateAssetTickers(ValueError):
     """Duplicate asset tickers found"""
+
+class WrongConstraintWeights(ValueError):
+    """Invalid weights for constraints"""
+
+class NonPositiveCash(ValueError):
+    """You can't buy anything with negative money!"""
 
 
 def calc_sum_bought(assetsToBuy, assetsBuying):
@@ -62,16 +70,18 @@ def calc_sol_distance(assetsToBuy, sol, moneyLeft, wML = 1, wMF = 1, wPA = 1):
     # Max MF is moneyLeft (i.e. we pay the max amount of fees)
     # Min MF is zero
     # distMF is in range of 0-1
-    distMF = calc_sum_fees(assetsToBuy, sol) / moneyLeft
-    ### TODO should use addML / addMF!!!
+    if wMF == 0:
+        distMF = 0
+    else:
+        distMF = calc_sum_fees(assetsToBuy, sol) / moneyLeft * wMF
 
-    ### TODO should be sum of squares
-    return distMF + distML
+    return sqrt(distMF ** 2 + distML ** 2)
 
 
 iterations = 0
 isDebug = False
 _solutionsFound = 0
+_bestSolutionsFound = 0
 _solutions = []
 _lenAss = 0
 _wML = 1
@@ -161,6 +171,9 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     wPA: weight of "Perfect Allocation" solution
     """
     
+    if not (0 <= wML <= 1 and 0 <= wMF <= 1 and 0 <= wPA <= 1):
+        raise WrongConstraintWeights
+
     global _wML
     global _wMF
     global _wPA
@@ -168,9 +181,9 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     _wMF = wMF
     _wPA = wPA
 
+    # Will add this to the minimums to relax the constraint
     global _addML
     global _addMF
-    # Will add this to the minimums to relax the constraint
     _addML = (1 - _wML) * moneyLeft
     _addMF = (1 - _wMF) * moneyLeft
 
@@ -182,6 +195,9 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 
 
     ##### add validation / sanity checks!!!!
+    if moneyLeft <= 0:
+        raise NonPositiveCash
+
     _pricesPosit = [c[1] > 0 for c in assetsToBuy]
     if not all(_pricesPosit):
         raise NonPositivePrices
@@ -198,6 +214,7 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     _solutionsFound = 0
     global _solutions
     _solutions = []
+    global _bestSolutionsFound
     result = buy_an_asset(assetsToBuy, moneyLeft)
 
     if len(assetsToBuy) > 1 and _solutionsFound > 0:
@@ -205,11 +222,11 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
         #print(_solutions)
         minSolutionDis = calc_sol_distance(assetsToBuy, _solutions[0], moneyLeft)
         bestSolution = _solutions[0]
-        _bestSolutionsFound = 0
+        _bestSolutionsFound = 1
         #print("Starting Sol distance: {:5.2f}, solution: {}".format(minSolutionDis, bestSolution))
         for sol in _solutions:
             currSolDis = calc_sol_distance(assetsToBuy, sol, moneyLeft)
-            if currSolDis <= minSolutionDis:
+            if currSolDis < minSolutionDis:
                 minSolutionDis = currSolDis
                 bestSolution = sol
                 _bestSolutionsFound += 1
@@ -226,11 +243,11 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 
 
 if __name__ == '__main__':
-    ass = [("VNQI", 3.5, 0.01, 1), ("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    # ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    # ass = [("VNQI", 3.5, 0.01, 1), ("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     #ass = [("A", 5, 0, 0)]
     weights = [.9, .9, 1]
-    cash = 100
+    cash = 150
     print("Allocating: ", ass)
     print("Cash available: {:}".format(cash))
     print("Weights: MinMoneyLeft: {:5.3f}, MinFees: {:5.3f}, PerfectAllocation: {:5.3f}".format(*weights))
@@ -244,3 +261,4 @@ if __name__ == '__main__':
     print("Total fees: ", calc_sum_fees(ass, buying))
     print("Calculated in ", iterations, " iterations")
     print("Solutions found: {:}".format(_solutionsFound))
+    print("Best solutions found: {:}".format(_bestSolutionsFound))
