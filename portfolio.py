@@ -45,22 +45,27 @@ def calc_sum_fees(assetsToBuy, assetsBuying):
         fees += calc_fee(ass, cnt)
     return fees
 
-def calc_bought_w_fees(assetsToBuy, assetsBuying):
+def calc_sum_bought_w_fees(assetsToBuy, assetsBuying):
     return calc_sum_fees(assetsToBuy, assetsBuying) + calc_sum_bought(assetsToBuy, assetsBuying)
 
-def calc_sol_distance(assetsToBuy, sol, moneyLeft):
+def calc_sol_distance(assetsToBuy, sol, moneyLeft, wML = 1, wMF = 1, wPA = 1):
     """
     Calculate distance (from the ideal solution)
     """
     # Max ML is moneyLeft (i.e. we don't buy anything)
     # Min ML is zero
     # distML is in range of 0-1
-    distML = (moneyLeft - calc_bought_w_fees(assetsToBuy, sol)) / moneyLeft
+    if wML == 0:
+        distML = 0
+    else:
+        distML = (moneyLeft - calc_sum_bought_w_fees(assetsToBuy, sol)) / moneyLeft * wML
     # Max MF is moneyLeft (i.e. we pay the max amount of fees)
     # Min MF is zero
     # distMF is in range of 0-1
     distMF = calc_sum_fees(assetsToBuy, sol) / moneyLeft
+    ### TODO should use addML / addMF!!!
 
+    ### TODO should be sum of squares
     return distMF + distML
 
 
@@ -75,7 +80,7 @@ _wPA = 1
 _minFees = 0
 
 def buy_an_asset(assetsToBuy, moneyLeft):
-    minAssetsBuying = []
+    minAssetsBuying = []# {{{
     minMoneyLeft = moneyLeft
     global iterations
     iterations += 1
@@ -106,25 +111,23 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     leftAssetsToBuy = assetsToBuy[1:]
     if isDebug: print("leftAssetsToBuy: ", leftAssetsToBuy)
 
-    # Will add this to the minimums to relax the constraint
-    addML = (1 - _wML) * moneyLeft
-    addMF = (1 - _wMF) * moneyLeft
-
     timesToCycle = int((moneyLeft - currAsset[3]) / currAsset[1])
     timesToCycle = timesToCycle + 1 if timesToCycle >= 0 else 1
     for currAssetCount in range(0, timesToCycle):
-        currMoneyLeft = moneyLeft - calc_bought_w_fees([currAsset], [currAssetCount])
+        currMoneyLeft = moneyLeft - calc_sum_bought_w_fees([currAsset], [currAssetCount])
         if currMoneyLeft >= 0:
             # import pdb; pdb.set_trace()
             currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
             if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
-            currMoneyLeft -= calc_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
+            currMoneyLeft -= calc_sum_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
             if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
             if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
             currFees = calc_sum_fees([currAsset] + leftAssetsToBuy, [currAssetCount] + currAssetsBuying)
 
             global _minFees
-            if currMoneyLeft >= 0 and currMoneyLeft <= minMoneyLeft + addML and currFees <= _minFees + addMF:
+            global _addML
+            global _addMF
+            if currMoneyLeft >= 0 and currMoneyLeft <= minMoneyLeft + _addML and currFees <= _minFees + _addMF:
 
                 minMoneyLeft = currMoneyLeft
                 minAssetsBuying = [currAssetCount] + currAssetsBuying
@@ -144,7 +147,9 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             returnValue = minAssetsBuying if minAssetsBuying != [] else [currAssetCount] + [0 for x in leftAssetsToBuy]
 
     if isDebug: print("Exiting fun. Will return minAssetsBuying: ", returnValue)
-    return returnValue
+    return returnValue# }}}
+
+
 
 def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     """
@@ -162,6 +167,13 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     _wML = wML
     _wMF = wMF
     _wPA = wPA
+
+    global _addML
+    global _addMF
+    # Will add this to the minimums to relax the constraint
+    _addML = (1 - _wML) * moneyLeft
+    _addMF = (1 - _wMF) * moneyLeft
+
     global _minFees
     _minFees = moneyLeft
     global _lenAss
@@ -178,7 +190,7 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     if not all(_feesPosit):
         raise NegativeFees
 
-    _cantBuySome = [calc_bought_w_fees([a], [1]) > moneyLeft for a in assetsToBuy]
+    _cantBuySome = [calc_sum_bought_w_fees([a], [1]) > moneyLeft for a in assetsToBuy]
     if any(_cantBuySome):
         raise TooLittleCash
 
@@ -214,16 +226,16 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 
 
 if __name__ == '__main__':
-    #ass = [("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    ass = [("VNQI", 3.5, 0.01, 1), ("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
     # ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    ass = [("A", 5, 0, 0)]
-    weights = [1, 1, 1]
-    cash = 5
+    #ass = [("A", 5, 0, 0)]
+    weights = [.9, .9, 1]
+    cash = 100
     print("Allocating: ", ass)
     print("Cash available: {:}".format(cash))
     print("Weights: MinMoneyLeft: {:5.3f}, MinFees: {:5.3f}, PerfectAllocation: {:5.3f}".format(*weights))
     buying = allocate_assets(ass, cash, *weights)
-    cashUsed = calc_bought_w_fees(ass, buying)
+    cashUsed = calc_sum_bought_w_fees(ass, buying)
     print("Will buy: ")
     for a, c in zip(ass, buying):
         print("   {0:4d} of {1:6} @ {2:8.2f} (total: {3:8.2f}, fees: {4:6.2f})".format(c, a[0], a[1], c * a[1], calc_fee(a, c)))

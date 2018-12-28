@@ -10,7 +10,7 @@ class UnitTestsCase(unittest.TestCase):
         self.assertEqual(portfolio.calc_fee(("A", 1, 0, 10), 1), 10)
 
     def test_calc_bought_w_fees(self):
-        self.assertEqual(portfolio.calc_bought_w_fees([("A", 1, 0, 10)], [1]), 11)
+        self.assertEqual(portfolio.calc_sum_bought_w_fees([("A", 1, 0, 10)], [1]), 11)
 
     def test_buyOneAssetClass(self):
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0)], 4), [1])
@@ -50,10 +50,10 @@ class UnitTestsCase(unittest.TestCase):
         # self.assertEqual(portfolio.iterations, 310124)
 
     def test_buySomeRelax(self):
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9, .9, .9), [1,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9, 1, .9), [1,1])
 
 
-    def test_calcDistOnlyML(self):
+    def test_calcDistStrictML(self):
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 1], 9), 0)
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [0, 1], 9), 4/9)
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 0], 9), 5/9)
@@ -62,10 +62,13 @@ class UnitTestsCase(unittest.TestCase):
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], [24,0,0,0], 100), 4/100)
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], [0,0,0,0], 100), 1)
 
-    def test_calcDistOnlyMF(self):
+    def test_calcDistStrictMF(self):
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 1)], [0, 1], 10), 0.5)
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 1, 0, 8)], [0, 1], 10), 9/10)
-        # self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], [25,0,0,0], 100), 0)
+
+    def test_calcDistRelaxedML(self):
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 1], 9, .5), 0)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, .5), 1 / 9 * .5)
 
     def test_nonpositive_prices(self):
         with self.assertRaises(portfolio.NonPositivePrices):
