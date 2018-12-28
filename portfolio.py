@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from math import sqrt
+
 # Custom errors
 class NonPositivePrices(ValueError):
     """All prices must be larger than zero"""
@@ -68,11 +70,12 @@ def calc_sol_distance(assetsToBuy, sol, moneyLeft, wML = 1, wMF = 1, wPA = 1):
     # Max MF is moneyLeft (i.e. we pay the max amount of fees)
     # Min MF is zero
     # distMF is in range of 0-1
-    distMF = calc_sum_fees(assetsToBuy, sol) / moneyLeft
-    ### TODO should use addML / addMF!!!
+    if wMF == 0:
+        distMF = 0
+    else:
+        distMF = calc_sum_fees(assetsToBuy, sol) / moneyLeft * wMF
 
-    ### TODO should be sum of squares
-    return distMF + distML
+    return sqrt(distMF ** 2 + distML ** 2)
 
 
 iterations = 0
@@ -215,12 +218,12 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     if len(assetsToBuy) > 1 and _solutionsFound > 0:
         # print("Solutions: {}".format(len(_solutions)))
         #print(_solutions)
-        minSolutionDis = calc_sol_distance(assetsToBuy, _solutions[0], moneyLeft)
+        minSolutionDis = calc_sol_distance(assetsToBuy, _solutions[0], moneyLeft, wML, wMF, wPA)
         bestSolution = _solutions[0]
         _bestSolutionsFound = 0
         #print("Starting Sol distance: {:5.2f}, solution: {}".format(minSolutionDis, bestSolution))
         for sol in _solutions:
-            currSolDis = calc_sol_distance(assetsToBuy, sol, moneyLeft)
+            currSolDis = calc_sol_distance(assetsToBuy, sol, moneyLeft, wML, wMF, wPA)
             if currSolDis <= minSolutionDis:
                 minSolutionDis = currSolDis
                 bestSolution = sol

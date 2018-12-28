@@ -50,7 +50,11 @@ class UnitTestsCase(unittest.TestCase):
         # self.assertEqual(portfolio.iterations, 310124)
 
     def test_buySomeRelax(self):
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9, 1, .9), [1,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9, 1, .9), [1, 1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 10, .9, 1), [1, 1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 10, .5, 1), [2, 0])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 11, .9, 1), [0, 2])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 11, .3, 1), [2, 0])
 
 
     def test_calcDistStrictML(self):
@@ -63,14 +67,19 @@ class UnitTestsCase(unittest.TestCase):
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], [0,0,0,0], 100), 1)
 
     def test_calcDistStrictMF(self):
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 1)], [0, 1], 10), 0.5)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 1, 0, 8)], [0, 1], 10), 9/10)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 1)], [1, 1], 10), 0.1)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 1, 0, 8)], [1, 1], 13), 8/13)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 9, 0, 0)], [0, 1], 9), 0)
 
     def test_calcDistRelaxedML(self):
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 1], 9, .5), 0)
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, .5), 1 / 9 * .5)
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, .1), 1 / 9 * .1)
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, 0), 0)
+
+    def test_calcDistRelaxedMF(self):
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 1), ("C", 5, 0, 0)], [1, 1], 10, 1, 0), 0)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 1), ("C", 5, 0, 0)], [1, 1], 10, 1, .5), .05)
 
     def test_nonpositive_prices(self):
         with self.assertRaises(portfolio.NonPositivePrices):
