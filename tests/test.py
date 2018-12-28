@@ -69,6 +69,8 @@ class UnitTestsCase(unittest.TestCase):
     def test_calcDistRelaxedML(self):
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 1], 9, .5), 0)
         self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, .5), 1 / 9 * .5)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, .1), 1 / 9 * .1)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, 0), 0)
 
     def test_nonpositive_prices(self):
         with self.assertRaises(portfolio.NonPositivePrices):
@@ -100,6 +102,25 @@ class UnitTestsCase(unittest.TestCase):
         with self.assertRaises(portfolio.TooLittleCash):
             portfolio.allocate_assets([("A", 1, 0, 1), ("A", 5, 1, 0)], 9, .9, .9)
 
+
+    def test_nonpositive_cash(self):
+        with self.assertRaises(portfolio.NonPositiveCash):
+            portfolio.allocate_assets([("A", 10, 0, 0), ("A", 15, 0, 0)], 0, .9, .9)
+        with self.assertRaises(portfolio.NonPositiveCash):
+            portfolio.allocate_assets([("A", 10, 0, 0), ("A", 15, 0, 0)], -1, .9, .9)
+
+
+    def test_weird_weights(self):
+        with self.assertRaises(portfolio.WrongConstraintWeights):
+            portfolio.allocate_assets([("A", 10, 0, 0), ("A", 15, 0, 0)], 20, 9, .9)
+        with self.assertRaises(portfolio.WrongConstraintWeights):
+            portfolio.allocate_assets([("A", 10, 0, 0), ("A", 15, 0, 0)], 20, -9, .9)
+        with self.assertRaises(portfolio.WrongConstraintWeights):
+            portfolio.allocate_assets([("A", 10, 0, 0), ("A", 15, 0, 0)], 20, .9, .9, -666)
+        with self.assertRaises(portfolio.WrongConstraintWeights):
+            portfolio.allocate_assets([("A", 10, 0, 0), ("A", 15, 0, 0)], 20, .9, .9, 666)
+        with self.assertRaises(portfolio.WrongConstraintWeights):
+            portfolio.allocate_assets([("A", 10, 0, 0), ("A", 15, 0, 0)], 20, 9)
 
 
 

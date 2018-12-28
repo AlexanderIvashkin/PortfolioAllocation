@@ -27,6 +27,12 @@ class TooLittleCash(ValueError):
 class DuplicateAssetTickers(ValueError):
     """Duplicate asset tickers found"""
 
+class WrongConstraintWeights(ValueError):
+    """Invalid weights for constraints"""
+
+class NonPositiveCash(ValueError):
+    """You can't buy anything with negative money!"""
+
 
 def calc_sum_bought(assetsToBuy, assetsBuying):
     tot_sum = 0
@@ -161,6 +167,9 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     wPA: weight of "Perfect Allocation" solution
     """
     
+    if not (0 <= wML <= 1 and 0 <= wMF <= 1 and 0 <= wPA <= 1):
+        raise WrongConstraintWeights
+
     global _wML
     global _wMF
     global _wPA
@@ -182,6 +191,9 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 
 
     ##### add validation / sanity checks!!!!
+    if moneyLeft <= 0:
+        raise NonPositiveCash
+
     _pricesPosit = [c[1] > 0 for c in assetsToBuy]
     if not all(_pricesPosit):
         raise NonPositivePrices
