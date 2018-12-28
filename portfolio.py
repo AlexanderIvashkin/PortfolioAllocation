@@ -56,6 +56,24 @@ def calc_sum_fees(assetsToBuy, assetsBuying):
 def calc_sum_bought_w_fees(assetsToBuy, assetsBuying):
     return calc_sum_fees(assetsToBuy, assetsBuying) + calc_sum_bought(assetsToBuy, assetsBuying)
 
+def calc_allocation_distance(assetsToBuy, assetsBuying):
+    """
+    Calculate distance from the ideal allocation where 0 is the best (min. distance).
+    Distance is SQRT(sum-squares).
+    """
+    totSum = calc_sum_bought_w_fees(assetsToBuy, assetsBuying)
+    alloDist = 0
+    if totSum > 0:
+        for ass, cnt in zip(assetsToBuy, assetsBuying):
+            alloDist += (ass[4] - (calc_sum_bought_w_fees([ass], [cnt]) / totSum) ) ** 2
+    else:
+        for ass, cnt in zip(assetsToBuy, assetsBuying):
+            alloDist += ass[4] ** 2
+    
+    return sqrt(alloDist)
+
+
+
 def calc_sol_distance(assetsToBuy, sol, moneyLeft, wML = 1, wMF = 1, wPA = 1):
     """
     Calculate distance (from the ideal solution)
@@ -75,7 +93,12 @@ def calc_sol_distance(assetsToBuy, sol, moneyLeft, wML = 1, wMF = 1, wPA = 1):
     else:
         distMF = calc_sum_fees(assetsToBuy, sol) / moneyLeft * wMF
 
-    return sqrt(distMF ** 2 + distML ** 2)
+    if wPA == 0:
+        distPA = 0
+    else:
+        distPA = calc_allocation_distance(assetsToBuy, sol)
+
+    return sqrt(distMF ** 2 + distML ** 2 + distPA ** 2)
 
 
 iterations = 0
@@ -88,6 +111,10 @@ _wML = 1
 _wMF = 1
 _wPA = 1
 _minFees = 0
+_minPA = 0
+_addML = 0
+_addMF = 0
+_mulPA = 1
 
 def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []# {{{
@@ -130,18 +157,25 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             currAssetsBuying = buy_an_asset(leftAssetsToBuy, currMoneyLeft)
             if isDebug: print("   after recursion: currAssetsBuying:", currAssetsBuying)
             currMoneyLeft -= calc_sum_bought_w_fees(leftAssetsToBuy, currAssetsBuying)
-            if isDebug: print("   currMoneyLeft: ", currMoneyLeft)
-            if isDebug: print("   minMoneyLeft: ", minMoneyLeft)
             currFees = calc_sum_fees([currAsset] + leftAssetsToBuy, [currAssetCount] + currAssetsBuying)
+            currPA = calc_allocation_distance([currAsset] + leftAssetsToBuy, [currAssetCount] + currAssetsBuying)
 
             global _minFees
+            global _minPA
             global _addML
             global _addMF
-            if currMoneyLeft >= 0 and currMoneyLeft <= minMoneyLeft + _addML and currFees <= _minFees + _addMF:
+            global _mulPA
+            if isDebug: print("   currMoneyLeft: {}".format(currMoneyLeft))
+            if isDebug: print("   minMoneyLeft: {}, +addML: {}".format(minMoneyLeft, minMoneyLeft + _addML))
+            if isDebug: print("   currPA: {:6.3f}, *mulPA: {:6.3f}".format(currPA, currPA * _mulPA))
+            if isDebug: print("   minPA: {:6.3f}".format(_minPA))
+
+            if currMoneyLeft >= 0 and currMoneyLeft <= minMoneyLeft + _addML and currFees <= _minFees + _addMF and currPA * _mulPA <= _minPA:
 
                 minMoneyLeft = currMoneyLeft
                 minAssetsBuying = [currAssetCount] + currAssetsBuying
                 _minFees = currFees
+                _minPA = currPA
                 global _lenAss
                 if len(assetsToBuy) == _lenAss:
                     global _solutionsFound
@@ -160,9 +194,8 @@ def buy_an_asset(assetsToBuy, moneyLeft):
     return returnValue# }}}
 
 
-
 def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
-    """
+    """# {{{
     Find the best allocation of assets.
     assetsToBuy: a list of tuples with assets (format TBD)
     moneyLeft: a value of money we can use
@@ -184,14 +217,20 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     # Will add this to the minimums to relax the constraint
     global _addML
     global _addMF
+    global _mulPA
     _addML = (1 - _wML) * moneyLeft
     _addMF = (1 - _wMF) * moneyLeft
+    _mulPA = 1 - _wPA
 
     global _minFees
     _minFees = moneyLeft
     global _lenAss
     _lenAss = len(assetsToBuy)
-    #print("_lenAss:", _lenAss)
+
+    global _minPA
+    # YES, that's an arbitrary number. However, it's impossible (?) to reach it so should be safe.
+    # VERY, very bad idea.
+    _minPA = 100
 
 
     ##### add validation / sanity checks!!!!
@@ -239,26 +278,30 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
             return result
         else:
             return []
-
+# }}}
 
 
 if __name__ == '__main__':
     # ass = [("VNQI", 3.5, 0.01, 1), ("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    ass = [("LQD", 2, 0.01, 1), ("SCHA", 2, 0.01, 1), ("S&P", 1, 0.01, 1), ("C", 10, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
+    ass = [("LQD", 2, 0.01, 1, 0.1), ("SCHA", 2, 0.01, 1, 0.2), ("S&P", 1, 0.01, 1, 0.5), ("C", 10, 0.01, 1, 0.1), ("AAPL", 1.1, 0.1, 1, 0.1)]
     #ass = [("A", 5, 0, 0)]
+    #ass = [("A", 5, 0, 0, .6), ("C", 5, 0, 0, .4)]
     weights = [.9, .9, 1]
-    cash = 150
+    cash = 100
     print("Allocating: ", ass)
     print("Cash available: {:}".format(cash))
     print("Weights: MinMoneyLeft: {:5.3f}, MinFees: {:5.3f}, PerfectAllocation: {:5.3f}".format(*weights))
     buying = allocate_assets(ass, cash, *weights)
-    cashUsed = calc_sum_bought_w_fees(ass, buying)
-    print("Will buy: ")
-    for a, c in zip(ass, buying):
-        print("   {0:4d} of {1:6} @ {2:8.2f} (total: {3:8.2f}, fees: {4:6.2f})".format(c, a[0], a[1], c * a[1], calc_fee(a, c)))
-    print("Total cost: ", cashUsed)
-    print("Money left: ", cash - cashUsed)
-    print("Total fees: ", calc_sum_fees(ass, buying))
-    print("Calculated in ", iterations, " iterations")
-    print("Solutions found: {:}".format(_solutionsFound))
-    print("Best solutions found: {:}".format(_bestSolutionsFound))
+    if _solutionsFound > 0:
+        cashUsed = calc_sum_bought_w_fees(ass, buying)
+        print("Will buy: ")
+        for a, c in zip(ass, buying):
+            print("   {0:4d} of {1:6} @ {2:8.2f} (total: {3:8.2f}, fees: {4:6.2f}). Allocation: {5:5.2%} (ideal: {6:5.2%}).".format(c, a[0], a[1], c * a[1], calc_fee(a, c), c * a[1] / cashUsed, a[4]))
+        print("Total cost: ", cashUsed)
+        print("Money left: ", cash - cashUsed)
+        print("Total fees: ", calc_sum_fees(ass, buying))
+        print("Calculated in ", iterations, " iterations")
+        print("Solutions found: {:}".format(_solutionsFound))
+        print("Best solutions found: {:}".format(_bestSolutionsFound))
+    else:
+        print("NO solutions found!")

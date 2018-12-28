@@ -3,6 +3,15 @@ import portfolio
 
 class UnitTestsCase(unittest.TestCase):
 
+    def test_calc_alloc_distance(self):
+        self.assertEqual(portfolio.calc_allocation_distance([("A", 5, 0, 0, 1)], [1]), 0)
+        self.assertEqual(portfolio.calc_allocation_distance([("A", 5, 0, 5, 1)], [1]), 0)
+        self.assertEqual(portfolio.calc_allocation_distance([("A", 5, 0, 0, .5)], [1]), 0.5)
+        self.assertEqual(portfolio.calc_allocation_distance([("A", 5, 0, 0, .5), ("C", 5, 0, 0, .5)], [1, 1]), 0)
+        self.assertEqual('{:5.3f}'.format(portfolio.calc_allocation_distance([("A", 5, 0, 0, .6), ("C", 5, 0, 0, .4)], [1, 1])), '0.141')
+        self.assertEqual('{:5.4f}'.format(portfolio.calc_allocation_distance([("A", 5, 0, 0, .9), ("C", 5, 0, 0, .1)], [1, 9])), '1.1314')
+
+
     def test_calcFee(self):
         self.assertEqual(portfolio.calc_fee(("A", 5, 0.01, 1), 4), 1)
         self.assertEqual(portfolio.calc_fee(("A", 5, 0.01, 1), 40), 2)
