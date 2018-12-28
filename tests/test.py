@@ -23,25 +23,25 @@ class UnitTestsCase(unittest.TestCase):
         self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0)], 6660), [6660])
 
     def test_buySome(self):
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 4), [1,0])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 40), [10,0])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 4), [1,0])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 4), [0,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 40), [0,10])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 4), [0,1])
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 6), [0,1])
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 10), [0,2])
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9), [1,1])
-        self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0), ("A", 1.1, 0, 0)], 666), [666,0])
+        self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0), ("A", 1.1, 0, 0)], 666), [6,600])
 
     def test_buyMany(self):
         ass = portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0), ("A", 4, 0, 0), ("A", 5, 0, 0)], 9)
         with self.subTest(assets = ass):
-            self.assertEqual(ass, [1,0,0,1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0), ("A", 4, 0, 0), ("A", 5, 0, 0)], 9), [1,0,0,1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 2, 0, 0), ("A", 6, 0, 0), ("A", 7, 0, 0)], 15.7), [2,0,0,1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4, 0, 0), ("A", 5, 0, 0)], 15), [1,1,0,1])
+            self.assertEqual(ass, [0,1,0,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0), ("A", 4, 0, 0), ("A", 5, 0, 0)], 9), [0,1,0,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 2, 0, 0), ("A", 6, 0, 0), ("A", 7, 0, 0)], 15.7), [0,4,0,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4, 0, 0), ("A", 5, 0, 0)], 15), [0,1,1,1])
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 11.1, 0, 0), ("A", 11.1, 0, 0), ("A", 11.1, 0, 0)], 15), [3,0,0,0])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4, 0, 0), ("A", 5, 0, 0)], 100), [25,0,0,0])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4, 0, 0), ("A", 5.1, 0, 0)], 100), [25,0,0,0])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], 100), [25,0,0,0])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4, 0, 0), ("A", 5, 0, 0)], 100), [0,16,1,0])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4, 0, 0), ("A", 5.1, 0, 0)], 100), [0,16,1,0])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], 100), [0,9,5,5])
 
     @unittest.skip("too much time to calculate")
     def test_buyDeep(self):
@@ -52,9 +52,9 @@ class UnitTestsCase(unittest.TestCase):
     def test_buySomeRelax(self):
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9, 1, .9), [1, 1])
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 10, .9, 1), [1, 1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 10, .5, 1), [2, 0])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 10, .5, 1), [1, 1])
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 11, .9, 1), [0, 2])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 11, .3, 1), [2, 0])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 11, .3, 1), [0, 2])
 
 
     def test_calcDistStrictML(self):
