@@ -111,13 +111,13 @@ _wML = 1
 _wMF = 1
 _wPA = 1
 _minFees = 0
-_minPA = 0
 _addML = 0
 _addMF = 0
 _mulPA = 1
 
 def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []# {{{
+    _minPA = 100
     minMoneyLeft = moneyLeft
     global iterations
     iterations += 1
@@ -161,7 +161,7 @@ def buy_an_asset(assetsToBuy, moneyLeft):
             currPA = calc_allocation_distance([currAsset] + leftAssetsToBuy, [currAssetCount] + currAssetsBuying)
 
             global _minFees
-            global _minPA
+            #global _minPA
             global _addML
             global _addMF
             global _mulPA
@@ -220,17 +220,17 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     global _mulPA
     _addML = (1 - _wML) * moneyLeft
     _addMF = (1 - _wMF) * moneyLeft
-    _mulPA = 1 - _wPA
+    _mulPA = _wPA
 
     global _minFees
     _minFees = moneyLeft
     global _lenAss
     _lenAss = len(assetsToBuy)
 
-    global _minPA
+    #global _minPA
     # YES, that's an arbitrary number. However, it's impossible (?) to reach it so should be safe.
     # VERY, very bad idea.
-    _minPA = 100
+    #_minPA = 100
 
 
     ##### add validation / sanity checks!!!!
@@ -283,20 +283,22 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
 
 if __name__ == '__main__':
     # ass = [("VNQI", 3.5, 0.01, 1), ("LQD", 2.5, 0.01, 1), ("SCHA", 2.01, 0.01, 1), ("S&P", 0.91, 0.01, 1), ("C", 9.9, 0.01, 1), ("AAPL", 1.1, 0.1, 1)]
-    ass = [("LQD", 2, 0.01, 1, 0.1), ("SCHA", 2, 0.01, 1, 0.2), ("S&P", 1, 0.01, 1, 0.5), ("C", 10, 0.01, 1, 0.1), ("AAPL", 1.1, 0.1, 1, 0.1)]
+    #ass = [("LQD", 2, 0.01, 1, 0.1), ("SCHA", 2, 0.01, 1, 0.2), ("S&P", 1, 0.01, 1, 0.5), ("C", 10, 0.01, 1, 0.1), ("AAPL", 1.1, 0.1, 1, 0.1)]
     #ass = [("A", 5, 0, 0)]
-    #ass = [("A", 5, 0, 0, .6), ("C", 5, 0, 0, .4)]
-    weights = [.9, .9, 1]
-    cash = 100
+    #ass = [("A", 5, 0, 0, .1), ("C", 5, 0, 0, .4), ("AAPL", 6, 0, 0, .5)]
+    ass = [("ETFDAX", 426.70, 0.0039, 3, .25), ("ETFW20L", 273.00, 0.0039, 3, .25), ("ETFSP500", 94.50, 0.0039, 3, .5)]
+    weights = [.9, .1, 1]
+    cash = 5331.60
     print("Allocating: ", ass)
     print("Cash available: {:}".format(cash))
     print("Weights: MinMoneyLeft: {:5.3f}, MinFees: {:5.3f}, PerfectAllocation: {:5.3f}".format(*weights))
     buying = allocate_assets(ass, cash, *weights)
+
     if _solutionsFound > 0:
         cashUsed = calc_sum_bought_w_fees(ass, buying)
         print("Will buy: ")
         for a, c in zip(ass, buying):
-            print("   {0:4d} of {1:6} @ {2:8.2f} (total: {3:8.2f}, fees: {4:6.2f}). Allocation: {5:5.2%} (ideal: {6:5.2%}).".format(c, a[0], a[1], c * a[1], calc_fee(a, c), c * a[1] / cashUsed, a[4]))
+            print("   {0:4d} of {1:8} @ {2:8.2f} (total: {3:8.2f}, fees: {4:6.2f}). Allocation: {5:5.2%} (ideal: {6:5.2%}).".format(c, a[0], a[1], c * a[1], calc_fee(a, c), c * a[1] / cashUsed, a[4]))
         print("Total cost: ", cashUsed)
         print("Money left: ", cash - cashUsed)
         print("Total fees: ", calc_sum_fees(ass, buying))
