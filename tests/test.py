@@ -22,14 +22,14 @@ class UnitTestsCase(unittest.TestCase):
         self.assertEqual(portfolio.calc_sum_bought_w_fees([("A", 1, 0, 10)], [1]), 11)
 
     def test_buyOneAssetClass(self):
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0)], 4), [1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0)], 7), [1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0)], 7.9999999999999), [1])
-        self.assertEqual(portfolio.allocate_assets([("A", 3.99, 0, 0)], 7.9999999999999), [2])
-        self.assertEqual(portfolio.allocate_assets([("A", 666, 0, 0)], 666), [1])
-        self.assertEqual(portfolio.allocate_assets([("A", 666, 0, 0)], 667), [1])
-        self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0)], 666), [666])
-        self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0)], 6660), [6660])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 1)], 4), [1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 1)], 7), [1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 1)], 7.9999999999999), [1])
+        self.assertEqual(portfolio.allocate_assets([("A", 3.99, 0, 0, 1)], 7.9999999999999), [2])
+        self.assertEqual(portfolio.allocate_assets([("A", 666, 0, 0, 1)], 666), [1])
+        self.assertEqual(portfolio.allocate_assets([("A", 666, 0, 0, 1)], 667), [1])
+        self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0, 1)], 666), [666])
+        self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0, 1)], 6660), [6660])
 
     @unittest.expectedFailure
     def test_buySome(self):
@@ -147,6 +147,13 @@ class UnitTestsCase(unittest.TestCase):
         with self.assertRaises(portfolio.WrongConstraintWeights):
             portfolio.allocate_assets([("A", 10, 0, 0), ("A", 15, 0, 0)], 20, 9)
 
+    def test_wrong_model_allocation(self):
+        with self.assertRaises(portfolio.WrongModelAllocation):
+            portfolio.allocate_assets([("A", 10, 0, 0, 0), ("A", 15, 0, 0, 0)], 20, .9, .9)
+        with self.assertRaises(portfolio.WrongModelAllocation):
+            portfolio.allocate_assets([("A", 10, 0, 0, 0.1), ("A", 15, 0, 0, 0)], 20, .9, .9)
+        with self.assertRaises(portfolio.WrongModelAllocation):
+            portfolio.allocate_assets([("A", 10, 0, 0, 0.1), ("A", 15, 0, 0, 1)], 20, .9, .9)
 
 
 

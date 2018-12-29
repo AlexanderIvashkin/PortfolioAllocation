@@ -35,6 +35,9 @@ class WrongConstraintWeights(ValueError):
 class NonPositiveCash(ValueError):
     """You can't buy anything with negative money!"""
 
+class WrongModelAllocation(ValueError):
+    """Assets allocations don't add up to 100%"""
+
 
 def calc_sum_bought(assetsToBuy, assetsBuying):
     tot_sum = 0
@@ -233,7 +236,6 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     #_minPA = 100
 
 
-    ##### add validation / sanity checks!!!!
     if moneyLeft <= 0:
         raise NonPositiveCash
 
@@ -248,6 +250,13 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     _cantBuySome = [calc_sum_bought_w_fees([a], [1]) > moneyLeft for a in assetsToBuy]
     if any(_cantBuySome):
         raise TooLittleCash
+
+    _sumPA = 0
+    for ass in assetsToBuy:
+        _sumPA += ass[4]
+
+    if _sumPA != 1:
+        raise WrongModelAllocation
 
     global _solutionsFound
     _solutionsFound = 0
