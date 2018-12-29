@@ -7,9 +7,11 @@ class UnitTestsCase(unittest.TestCase):
         self.assertEqual(portfolio.calc_allocation_distance([("A", 5, 0, 0, 1)], [1]), 0)
         self.assertEqual(portfolio.calc_allocation_distance([("A", 5, 0, 5, 1)], [1]), 0)
         self.assertEqual(portfolio.calc_allocation_distance([("A", 5, 0, 0, .5)], [1]), 0.5)
+        self.assertEqual(portfolio.calc_allocation_distance([("A", 5, 0, 0, .1)], [1]), 0.9)
+        self.assertEqual(portfolio.calc_allocation_distance([("A", 5, 0, 0, .5), ("C", 5, 0, 0, .5)], [0, 1]), 0.5)
         self.assertEqual(portfolio.calc_allocation_distance([("A", 5, 0, 0, .5), ("C", 5, 0, 0, .5)], [1, 1]), 0)
-        self.assertEqual('{:5.3f}'.format(portfolio.calc_allocation_distance([("A", 5, 0, 0, .6), ("C", 5, 0, 0, .4)], [1, 1])), '0.141')
-        self.assertEqual('{:5.4f}'.format(portfolio.calc_allocation_distance([("A", 5, 0, 0, .9), ("C", 5, 0, 0, .1)], [1, 9])), '1.1314')
+        self.assertEqual('{:5.3f}'.format(portfolio.calc_allocation_distance([("A", 5, 0, 0, .6), ("C", 5, 0, 0, .4)], [1, 1])), '0.100')
+        self.assertEqual('{:5.4f}'.format(portfolio.calc_allocation_distance([("A", 5, 0, 0, .9), ("C", 5, 0, 0, .1)], [1, 9])), '0.8000')
 
 
     def test_calcFee(self):
@@ -64,7 +66,7 @@ class UnitTestsCase(unittest.TestCase):
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 5, 0, 1, 0.5)], 10, .9, 1, 0), [1, 1])
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 5, 0, 1, 0.5)], 10, .5, 1, 0), [1, 1])
         self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.2), ("A", 5, 0, 1, 0.8)], 11, .9, 1, 0), [0, 2])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.2), ("A", 5, 0, 1, 0.8)], 11, .3, 1, 0), [0, 2])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.2), ("A", 5, 0, 1, 0.8)], 11, .3, 1, 0), [2, 0])
 
 
     def test_calcDistStrictML_noPA(self):

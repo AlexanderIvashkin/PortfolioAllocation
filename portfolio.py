@@ -73,7 +73,7 @@ def calc_allocation_distance(assetsToBuy, assetsBuying):
         for ass, cnt in zip(assetsToBuy, assetsBuying):
             alloDist += ass[4] ** 2
     
-    return sqrt(alloDist)
+    return sqrt(alloDist / len(assetsToBuy))
 
 
 
@@ -99,7 +99,7 @@ def calc_sol_distance(assetsToBuy, sol, moneyLeft, wML = 1, wMF = 1, wPA = 1):
     if wPA == 0:
         distPA = 0
     else:
-        distPA = calc_allocation_distance(assetsToBuy, sol)
+        distPA = calc_allocation_distance(assetsToBuy, sol) * wPA
 
     return sqrt(distMF ** 2 + distML ** 2 + distPA ** 2)
 
@@ -117,6 +117,7 @@ _minFees = 0
 _addML = 0
 _addMF = 0
 _mulPA = 1
+_localMinFound = 0
 
 def buy_an_asset(assetsToBuy, moneyLeft):
     minAssetsBuying = []# {{{
@@ -175,12 +176,14 @@ def buy_an_asset(assetsToBuy, moneyLeft):
 
             if currMoneyLeft >= 0 and currMoneyLeft <= minMoneyLeft + _addML and currFees <= _minFees + _addMF and currPA * _mulPA <= _minPA:
 
-                minMoneyLeft = currMoneyLeft
-                minAssetsBuying = [currAssetCount] + currAssetsBuying
-                _minFees = currFees
-                _minPA = currPA
+                global _localMinFound
+                _localMinFound += 1
                 global _lenAss
                 if len(assetsToBuy) == _lenAss:
+                    minMoneyLeft = currMoneyLeft
+                    minAssetsBuying = [currAssetCount] + currAssetsBuying
+                    _minFees = currFees
+                    _minPA = currPA
                     global _solutionsFound
                     _solutionsFound += 1
                     global _solutions
@@ -268,18 +271,19 @@ def allocate_assets(assetsToBuy, moneyLeft, wML=1, wMF=1, wPA=1):
     if len(assetsToBuy) > 1 and _solutionsFound > 0:
         # print("Solutions: {}".format(len(_solutions)))
         #print(_solutions)
-        minSolutionDis = calc_sol_distance(assetsToBuy, _solutions[0], moneyLeft)
+        minSolutionDis = calc_sol_distance(assetsToBuy, _solutions[0], moneyLeft, wML, wMF, wPA)
         bestSolution = _solutions[0]
-        _bestSolutionsFound = 1
-        #print("Starting Sol distance: {:5.2f}, solution: {}".format(minSolutionDis, bestSolution))
+        #_bestSolutionsFound = 1
+        #print("Starting Sol distance: {:5.3f}, solution: {}".format(minSolutionDis, bestSolution))
         for sol in _solutions:
-            currSolDis = calc_sol_distance(assetsToBuy, sol, moneyLeft)
+            currSolDis = calc_sol_distance(assetsToBuy, sol, moneyLeft, wML, wMF, wPA)
+            #print("Current Sol distance: {:5.3f}, solution: {}".format(currSolDis, sol))
             if currSolDis < minSolutionDis:
                 minSolutionDis = currSolDis
                 bestSolution = sol
-                _bestSolutionsFound += 1
+                #print("Best solution found: {}, minSolutionDis: {:5.3f}".format(bestSolution, minSolutionDis))
+                #_bestSolutionsFound += 1
 
-        #print("Best solutions found: {}".format(_bestSolutionsFound))
         return bestSolution
     else:
         if len(assetsToBuy) == 1:
@@ -295,8 +299,9 @@ if __name__ == '__main__':
     #ass = [("LQD", 2, 0.01, 1, 0.1), ("SCHA", 2, 0.01, 1, 0.2), ("S&P", 1, 0.01, 1, 0.5), ("C", 10, 0.01, 1, 0.1), ("AAPL", 1.1, 0.1, 1, 0.1)]
     #ass = [("A", 5, 0, 0)]
     #ass = [("A", 5, 0, 0, .1), ("C", 5, 0, 0, .4), ("AAPL", 6, 0, 0, .5)]
-    ass = [("ETFDAX", 426.70, 0.0039, 3, .25), ("ETFW20L", 273.00, 0.0039, 3, .25), ("ETFSP500", 94.50, 0.0039, 3, .5)]
-    weights = [.9, .1, 1]
+    # ass = [("ETFDAX", 426.70, 0.0039, 3, .25), ("ETFW20L", 273.00, 0.0039, 3, .25), ("ETFSP500", 94.50, 0.0039, 3, .5)]
+    ass = [("SCHA", 226.30, 0.0029, 38, .15), ("VNQI", 196.76, 0.0029, 38, .10), ("LQD", 422.80, 0.0029, 38, .15), ("ETFDAX", 426.70, 0.0039, 3, .15), ("ETFW20L", 273.00, 0.0039, 3, .15), ("ETFSP500", 94.50, 0.0039, 3, .3)]
+    weights = [.0, 1, .0]
     cash = 5331.60
     print("Allocating: ", ass)
     print("Cash available: {:}".format(cash))
@@ -308,11 +313,13 @@ if __name__ == '__main__':
         print("Will buy: ")
         for a, c in zip(ass, buying):
             print("   {0:4d} of {1:8} @ {2:8.2f} (total: {3:8.2f}, fees: {4:6.2f}). Allocation: {5:5.2%} (ideal: {6:5.2%}).".format(c, a[0], a[1], c * a[1], calc_fee(a, c), c * a[1] / cashUsed, a[4]))
-        print("Total cost: ", cashUsed)
-        print("Money left: ", cash - cashUsed)
-        print("Total fees: ", calc_sum_fees(ass, buying))
+        print("Total cost: {:8.2f}".format(cashUsed))
+        print("Money left: {:8.2f}".format(cash - cashUsed))
+        print("Total fees: {:8.2f}".format(calc_sum_fees(ass, buying)))
         print("Calculated in ", iterations, " iterations")
         print("Solutions found: {:}".format(_solutionsFound))
-        print("Best solutions found: {:}".format(_bestSolutionsFound))
+        print(_solutions)
+        #print("Best solutions found: {:}".format(_bestSolutionsFound))
     else:
         print("NO solutions found!")
+        print("_localMinFound: {}".format(_localMinFound))
