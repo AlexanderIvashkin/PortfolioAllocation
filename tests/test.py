@@ -31,15 +31,14 @@ class UnitTestsCase(unittest.TestCase):
         self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0, 1)], 666), [666])
         self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0, 1)], 6660), [6660])
 
-    @unittest.expectedFailure
     def test_buySome(self):
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 4), [0,1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 40), [0,10])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 4, 0, 0)], 4), [0,1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 6), [0,1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 10), [0,2])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9), [1,1])
-        self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0), ("A", 1.1, 0, 0)], 666), [6,600])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 4, 0, 0, 0.5)], 4), [0,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 4, 0, 0, 0.5)], 40), [5,5])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 4, 0, 0, 0.5)], 4), [0,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 5, 0, 0, 0.5)], 6), [0,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 5, 0, 0, 0.5)], 10), [0,2])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 5, 0, 0, 0.5)], 9), [1,1])
+        self.assertEqual(portfolio.allocate_assets([("A", 1, 0, 0, 0.5), ("A", 1.1, 0, 0, 0.5)], 666), [336,300])
 
     @unittest.expectedFailure
     def test_buyMany(self):
@@ -60,42 +59,37 @@ class UnitTestsCase(unittest.TestCase):
         print("   Iterations: ", portfolio.iterations)
         # self.assertEqual(portfolio.iterations, 310124)
 
-    @unittest.expectedFailure
-    def test_buySomeRelax(self):
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 0)], 9, 1, .9), [1, 1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 10, .9, 1), [1, 1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 10, .5, 1), [1, 1])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 11, .9, 1), [0, 2])
-        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0), ("A", 5, 0, 1)], 11, .3, 1), [0, 2])
+    def test_buySomeRelax_noPA(self):
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 5, 0, 0, 0.5)], 9, 1, .9, 0), [1, 1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 5, 0, 1, 0.5)], 10, .9, 1, 0), [1, 1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.5), ("A", 5, 0, 1, 0.5)], 10, .5, 1, 0), [1, 1])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.2), ("A", 5, 0, 1, 0.8)], 11, .9, 1, 0), [0, 2])
+        self.assertEqual(portfolio.allocate_assets([("A", 4, 0, 0, 0.2), ("A", 5, 0, 1, 0.8)], 11, .3, 1, 0), [0, 2])
 
 
-    @unittest.expectedFailure
-    def test_calcDistStrictML(self):
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 1], 9), 0)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [0, 1], 9), 4/9)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 0], 9), 5/9)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [0, 0], 9), 1)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], [25,0,0,0], 100), 0)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], [24,0,0,0], 100), 4/100)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], [0,0,0,0], 100), 1)
+    def test_calcDistStrictML_noPA(self):
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 1], 9, wPA = 0), 0)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [0, 1], 9, wPA = 0), 4/9)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 0], 9, wPA = 0), 5/9)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [0, 0], 9, wPA = 0), 1)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], [25,0,0,0], 100, wPA = 0), 0)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], [24,0,0,0], 100, wPA = 0), 4/100)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("A", 6, 0, 0), ("A", 4.1, 0, 0), ("A", 5.1, 0, 0)], [0,0,0,0], 100, wPA = 0), 1)
 
-    @unittest.expectedFailure
-    def test_calcDistStrictMF(self):
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 1)], [1, 1], 10), 0.1)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 1, 0, 8)], [1, 1], 13), 8/13)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 9, 0, 0)], [0, 1], 9), 0)
+    def test_calcDistStrictMF_noPA(self):
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 1)], [1, 1], 10, wPA = 0), 0.1)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 1, 0, 8)], [1, 1], 13, wPA = 0), 8/13)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 9, 0, 0)], [0, 1], 9, wPA = 0), 0)
 
-    @unittest.expectedFailure
-    def test_calcDistRelaxedML(self):
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 1], 9, .5), 0)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, .5), 1 / 9 * .5)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, .1), 1 / 9 * .1)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, 0), 0)
+    def test_calcDistRelaxedML_noPA(self):
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 5, 0, 0)], [1, 1], 9, .5, wPA = 0), 0)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, .5, wPA = 0), 1 / 9 * .5)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, .1, wPA = 0), 1 / 9 * .1)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 0), ("C", 4, 0, 0)], [1, 1], 9, 0, wPA = 0), 0)
 
-    @unittest.expectedFailure
-    def test_calcDistRelaxedMF(self):
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 1), ("C", 5, 0, 0)], [1, 1], 10, 1, 0), 0)
-        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 1), ("C", 5, 0, 0)], [1, 1], 10, 1, .5), .05)
+    def test_calcDistRelaxedMF_noPA(self):
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 1), ("C", 5, 0, 0)], [1, 1], 10, 1, 0, wPA = 0), 0)
+        self.assertEqual(portfolio.calc_sol_distance([("A", 4, 0, 1), ("C", 5, 0, 0)], [1, 1], 10, 1, .5, wPA = 0), .05)
 
     def test_nonpositive_prices(self):
         with self.assertRaises(portfolio.NonPositivePrices):
